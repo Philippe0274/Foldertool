@@ -945,8 +945,6 @@ header.app-header::after {
   <button class="main-tab" data-tab="campagne">🎯 Campagne</button>
   <button class="main-tab active" data-tab="kaart">🗺️ Kaart</button>
   <button class="main-tab" data-tab="bedeeldagen">📅 Bedeeldagen</button>
-  <button class="main-tab" data-tab="personen">👥 Personen</button>
-  <button class="main-tab" data-tab="campver">🎭 CampVer</button>
   <button class="main-tab" data-tab="wv">👤 Wijkverantwoordelijken</button>
   <button class="main-tab" data-tab="vrijwilligers">🙋 Vrijwilligers</button>
   <button class="main-tab" data-tab="straten">📋 Straten & Wijken</button>
@@ -1255,37 +1253,6 @@ header.app-header::after {
   </div>
 </div>
 
-<!-- TAB: PERSONEN (NIEUW) -->
-<div class="tab-page" id="tab-personen">
-  <div class="beheer-page">
-    <h2>👥 Personen</h2>
-    <p style="color:#666;font-size:13px;margin-bottom:16px;">Centraal register van alle personen die kunnen werken als campagneverantwoordelijke, wijkverantwoordelijke of vrijwilliger.</p>
-    
-    <div style="margin-bottom:16px;">
-      <button class="btn-primary" onclick="openPersonToevoegModal()">➕ Nieuwe persoon toevoegen</button>
-    </div>
-    
-    <div id="personen-tabel-container"></div>
-  </div>
-</div>
-
-<!-- TAB: CAMPAGNEVERANTWOORDELIJKEN (NIEUW) -->
-<div class="tab-page" id="tab-campver">
-  <div class="beheer-page">
-    <h2>🎭 Campagneverantwoordelijken</h2>
-    <p style="color:#666;font-size:13px;margin-bottom:16px;">Selecteer voor elke campagne wie de campagneverantwoordelijke is. Deze persoon coördineert de hele campagne.</p>
-    
-    <div style="margin-bottom:16px;">
-      <label style="font-size:12px;font-weight:600;color:#555;">Actieve campagne:</label>
-      <select id="campver-campagne-select" onchange="renderCampVerTab()" style="width:100%;max-width:300px;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;margin-top:4px;">
-        <option value="">— Selecteer campagne —</option>
-      </select>
-    </div>
-    
-    <div id="campver-content"></div>
-  </div>
-</div>
-
 <!-- TAB: STRATEN & WIJKEN -->
 <div class="tab-page" id="tab-straten">
   <div class="beheer-page">
@@ -1547,63 +1514,63 @@ header.app-header::after {
     </div>
     <div class="modal-body" style="line-height:1.65;font-size:14px;color:#333;">
       <div data-lang="nl">
-      <p style="margin-bottom:14px;">Deze tool helpt je om de folderbedeling in Vilvoorde te plannen en op te volgen. <strong>✨ VERSIE: OPTIE B - Campagne-specifieke rollen.</strong></p>
+      <p style="margin-bottom:14px;">Deze tool helpt je om de folderbedeling in Vilvoorde te plannen en op te volgen. Hieronder kort wat elk onderdeel doet.</p>
 
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">👥 Personen</h4>
-      <p>Centraal register van alle personen die kunnen werken. Voeg hier iedereen toe (voornaam, naam, GSM, email). Dezelfde persoon kan in verschillende campagnes andere rollen hebben.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🎯 Campagne & 🎭 CampVer</h4>
-      <p>Maak campagnes aan (bijv. "Maart 2024") en selecteer per campagne wie de campagneverantwoordelijke is. Deze coördineert de hele campagne.</p>
+      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🗺️ Kaart</h4>
+      <p>Toont alle straten van Vilvoorde, gekleurd volgens hun bedeelstatus. De eerste keer worden de straten van OpenStreetMap gehaald (even geduld, daarna zitten ze in het geheugen van je browser).</p>
+      <ul style="margin:6px 0 6px 20px;">
+        <li><strong>Zoeken:</strong> typ in het zoekvak rechts om een straat te vinden. Kies hem uit de lijst om er meteen naartoe te zoomen.</li>
+        <li><strong>Filters:</strong> toon enkel de straten van één wijk, één vrijwilliger of één wijkverantwoordelijke (WV).</li>
+        <li><strong>🔄 Herlaad:</strong> haalt de straten opnieuw op (nodig als er iets misging).</li>
+        <li><strong>💾 Offline opslaan:</strong> bewaart een versie met de straten ingebakken, zodat alles ook zonder internet werkt.</li>
+      </ul>
 
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">👤 Wijkverantwoordelijken (WV)</h4>
-      <p>Per campagne: voeg WV's toe en wijs hun wijken toe. WV's coördineren vrijwilligers en kunnen zelf folders bedelen.</p>
+      <p>Voeg de verantwoordelijken toe en wijs hen één of meer wijken toe. Zij coördineren de vrijwilligers in hun wijk.</p>
 
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">🙋 Vrijwilligers</h4>
-      <p>Per campagne: voeg bedelers toe, koppel ze aan een WV, en wijs straten toe. Vrijwilligers kunnen ook zelf folders bedelen.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🗺️ Kaart & 📋 Straten</h4>
-      <p>De kaart toont alle straten, gekleurd per status. <strong>✨ NIEUW: Bedeler-kolom</strong> toont wie elke straat bedeld heeft. Filters per wijk, vrijwilliger of WV.</p>
+      <p>Voeg de mensen toe die effectief folders bedelen. Eens toegevoegd verschijnen ze automatisch in de filters op het kaarttabblad en kan je hen straten toewijzen in een bedeeldag.</p>
 
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">📅 Bedeeldagen</h4>
-      <p>Planning per campagne. Wijs straten toe, verstuur lijsten, importeer resultaten, en de kaart werkt automatisch bij.</p>
+      <p>Het hart van de planning. Per bedeeldag:</p>
+      <ul style="margin:6px 0 6px 20px;">
+        <li>Wijs straten toe aan vrijwilligers (eventueel onder een WV).</li>
+        <li>Stuur elke vrijwilliger zijn stratenlijst door via WhatsApp of Excel.</li>
+        <li>Importeer achteraf de ingevulde resultaten om de kaart bij te werken.</li>
+        <li>Genereer een rapport van de voortgang.</li>
+      </ul>
 
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;\">💾 Back-up & Vergelijking</h4>
-      <p><strong>Meerdere campagnes?</strong> Elke campagne heeft eigen WV/VW/straten-status. Exporteer naar Excel om campagnes te vergelijken op resultaat.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;\">💡 Goed om te weten</h4>
-      <p>Alle data lokaal in jouw browser. Maak regelmatig een back-up (📥 Excel knop). Geen internet nodig na de eerste keer (straten worden opgeslagen).</p>
+      <h4 style="color:#2C5F8D;margin:16px 0 6px;">💡 Goed om te weten</h4>
+      <p>Alle gegevens worden lokaal in <em>jouw</em> browser bewaard. Ze worden niet automatisch gedeeld met anderen. Wis je browsergegevens, dan ben je de data kwijt — gebruik daarom regelmatig de export/opslaan-functies als back-up.</p>
 
       <div style="text-align:right;margin-top:18px;">
         <button class="btn-primary" onclick="closeModal('modal-uitleg')">Begrepen 👍</button>
       </div>
     </div>
       <div data-lang="fr" style="display:none;">
-      <p style="margin-bottom:14px;">Cet outil vous aide à planifier et suivre la distribution de folders à Vilvorde. <strong>✨ VERSION : OPTION B - Rôles spécifiques par campagne.</strong></p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">👥 Personnes</h4>
-      <p>Registre central de toutes les personnes. Ajoutez ici chacun (prénom, nom, GSM, email). La même personne peut avoir différents rôles dans différentes campagnes.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🎯 Campagne & 🎭 ResponsableCampagne</h4>
-      <p>Créez des campagnes (ex. "Mars 2024") et sélectionnez pour chaque campagne qui est responsable. Cette personne coordonne toute la campagne.</p>
-
+      <p style="margin-bottom:14px;">Cet outil vous aide à planifier et suivre la distribution de folders à Vilvorde. Voici les principaux éléments.</p>
+      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🗺️ Carte</h4>
+      <p>Affiche toutes les rues de Vilvorde, colorées selon leur statut de distribution. La première fois, les rues sont récupérées depuis OpenStreetMap (un peu de patience, ensuite elles restent en mémoire dans votre navigateur).</p>
+      <ul style="margin:6px 0 6px 20px;">
+        <li><strong>Recherche :</strong> tapez dans le champ de recherche à droite pour trouver une rue. Choisissez-la dans la liste pour y zoomer directement.</li>
+        <li><strong>Filtres :</strong> n'affichez que les rues d'un quartier, d'un bénévole ou d'un responsable de quartier (RQ).</li>
+        <li><strong>🔄 Recharger :</strong> récupère à nouveau les rues (utile en cas de problème).</li>
+        <li><strong>💾 Enregistrer hors ligne :</strong> sauvegarde une version avec les rues intégrées, pour que tout fonctionne aussi sans internet.</li>
+      </ul>
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">👤 Responsables de quartier (RQ)</h4>
-      <p>Par campagne : ajoutez des RQ et attribuez-leur des quartiers. Les RQ coordonnent les bénévoles et peuvent aussi distribuer eux-mêmes.</p>
-
+      <p>Ajoutez les responsables et attribuez-leur un ou plusieurs quartiers. Ils coordonnent les bénévoles de leur quartier.</p>
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">🙋 Bénévoles</h4>
-      <p>Par campagne : ajoutez des distributeurs, liez-les à un RQ, et attribuez des rues. Les bénévoles peuvent aussi distribuer.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">🗺️ Carte & 📋 Rues</h4>
-      <p>La carte affiche toutes les rues, colorées par statut. <strong>✨ NOUVEAU : Colonne Distributeur</strong> montre qui a distribué chaque rue. Filtres par quartier, bénévole ou RQ.</p>
-
+      <p>Ajoutez les personnes qui distribuent effectivement les folders. Une fois ajoutées, elles apparaissent automatiquement dans les filtres de la carte et vous pouvez leur attribuer des rues dans un jour de distribution.</p>
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">📅 Jours de distribution</h4>
-      <p>Planification par campagne. Attribuez des rues, envoyez les listes, importez les résultats et la carte se met à jour automatiquement.</p>
-
-      <h4 style="color:#2C5F8D;margin:16px 0 6px;">💾 Sauvegarde & Comparaison</h4>
-      <p><strong>Plusieurs campagnes ?</strong> Chaque campagne a ses propres RQ/bénévoles/statuts. Exportez en Excel pour comparer les campagnes par résultat.</p>
-
+      <p>Le cœur de la planification. Par jour de distribution :</p>
+      <ul style="margin:6px 0 6px 20px;">
+        <li>Attribuez des rues aux bénévoles (éventuellement sous un RQ).</li>
+        <li>Envoyez à chaque bénévole sa liste de rues via WhatsApp ou Excel.</li>
+        <li>Importez ensuite les résultats remplis pour mettre à jour la carte.</li>
+        <li>Générez un rapport de progression.</li>
+      </ul>
       <h4 style="color:#2C5F8D;margin:16px 0 6px;">💡 Bon à savoir</h4>
-      <p>Toutes les données sont locales dans votre navigateur. Faites régulièrement une sauvegarde (bouton 📥 Excel). Pas d'internet nécessaire après le première fois (les rues sont stockées).</p>
-
+      <p>Toutes les données sont conservées localement dans <em>votre</em> navigateur. Elles ne sont pas partagées automatiquement avec d'autres. Si vous effacez les données de navigation, vous les perdez — utilisez donc régulièrement les fonctions d'export/sauvegarde.</p>
       <div style="text-align:right;margin-top:18px;">
         <button class="btn-primary" onclick="closeModal('modal-uitleg')">Compris 👍</button>
       </div>
@@ -1626,187 +1593,6 @@ const STREETS_DATA = [["Aardebergstraat","Koningslo (Oud)"],["Aardestraat","Hout
 const STREETS = STREETS_DATA.map(s=>s[0]);
 const STREET_TO_WIJK = Object.fromEntries(STREETS_DATA.map(s=>[s[0],s[1]]));
 const ALL_WIJKEN = [...new Set(STREETS_DATA.map(s=>s[1]))].sort();
-
-// ═══════════════════════════════════════════════════════════════════
-// ✨ OPTIE B: CAMPAGNE-SPECIFIEKE ROLLEN (NIEUW)
-// ═══════════════════════════════════════════════════════════════════
-
-// ===== PERSONEN-POOL (GLOBAAL) =====
-function getPersonen() { return ls('vf_personen', {}); }
-function savePersonen(data) { lsSet('vf_personen', data); }
-function addPersoon(id, voornaam, naam, roepnaam, telefoon, email='') {
-  const personen = getPersonen();
-  personen[id] = {id, voornaam, naam, roepnaam, telefoon, email, gemaaktOp: Date.now()};
-  savePersonen(personen);
-}
-function getPersoon(id) { return getPersonen()[id] || null; }
-function deletePersoon(id) {
-  const personen = getPersonen();
-  delete personen[id];
-  savePersonen(personen);
-}
-
-// ===== CAMPAGNEVERANTWOORDELIJKEN (PER CAMPAGNE) =====
-function getCampVerVoorCampagne(campagneId) {
-  return ls('vf_campver_' + campagneId, {});
-}
-function saveCampVerVoorCampagne(campagneId, data) {
-  lsSet('vf_campver_' + campagneId, data);
-}
-function getCampVer(campagneId) {
-  const campagnes = getCampagnes();
-  const camp = campagnes.find(c => c.id === campagneId);
-  if (!camp || !camp.campagneverantwoordelijke_id) return null;
-  const persoon = getPersoon(camp.campagneverantwoordelijke_id);
-  return persoon ? { ...persoon, rol: 'campagneverantwoordelijke' } : null;
-}
-function setCampVer(campagneId, personId) {
-  const campagnes = getCampagnes();
-  const camp = campagnes.find(c => c.id === campagneId);
-  if (camp) {
-    camp.campagneverantwoordelijke_id = personId || null;
-    saveCampagnes(campagnes);
-  }
-}
-
-// ===== WIJKVERANTWOORDELIJKEN (PER CAMPAGNE) =====
-function getWvVoorCampagne(campagneId) {
-  return ls('vf_wv_' + campagneId, {});
-}
-function saveWvVoorCampagne(campagneId, data) {
-  lsSet('vf_wv_' + campagneId, data);
-}
-function getWvVanWijk(campagneId, wijk) {
-  const wv = getWvVoorCampagne(campagneId);
-  return Object.values(wv).find(w => (w.wijken || []).includes(wijk)) || null;
-}
-function getWvWijkenInCampagne(campagneId) {
-  const wv = getWvVoorCampagne(campagneId);
-  const wijken = new Set();
-  Object.values(wv).forEach(w => (w.wijken || []).forEach(wijk => wijken.add(wijk)));
-  return Array.from(wijken).sort();
-}
-
-// ===== VRIJWILLIGERS (PER CAMPAGNE) =====
-function getVwVoorCampagne(campagneId) {
-  return ls('vf_vw_' + campagneId, {});
-}
-function saveVwVoorCampagne(campagneId, data) {
-  lsSet('vf_vw_' + campagneId, data);
-}
-function getVwVanWijk(campagneId, wijk) {
-  const vw = getVwVoorCampagne(campagneId);
-  return Object.values(vw).filter(v => (v.wijken || []).includes(wijk));
-}
-
-// ===== BEDELING-TRACKING =====
-function setBedeler(straat, campagneId, personId, rol) {
-  const status = getStatus();
-  if (status[straat]) {
-    const persoon = getPersoon(personId);
-    if (persoon) {
-      status[straat].bedeler = {
-        person_id: personId,
-        voornaam: persoon.voornaam,
-        rol: rol // vrijwilliger, wijkverantwoordelijke, campagneverantwoordelijke
-      };
-      status[straat].bedeldOp = new Date().toISOString();
-      saveStatus(status);
-    }
-  }
-}
-function getBedeler(straat, campagneId) {
-  const status = getStatus();
-  return status[straat]?.bedeler || null;
-}
-
-// ===== MIGRATIE HELPERS =====
-function migreerOudeDataNaarNieuweStructuur() {
-  const campagnes = getCampagnes();
-  if (!campagnes.length) return; // Geen campagnes = niets te migreren
-  
-  const oudWV = ls('vf_wvdata', {});
-  const oudVW = ls('vf_vwdata', {});
-  
-  // Voor elke campagne: kopie van oude WV/VW maken
-  campagnes.forEach(camp => {
-    const campID = camp.id;
-    
-    // Migreer WV's naar campagne-specifiek
-    if (!ls('vf_wv_' + campID, null)) {
-      const newWV = {};
-      Object.entries(oudWV).forEach(([id, wvData]) => {
-        newWV[id] = {
-          person_id: id,
-          voornaam: wvData.voornaam,
-          naam: wvData.naam,
-          roepnaam: wvData.roepnaam,
-          telefoon: wvData.telefoon,
-          wijken: wvData.wijken || [],
-          rol: 'wijkverantwoordelijke',
-          vrijwilligers: wvData.vrijwilligers || [],
-          toegewezenOp: wvData.gemaaktOp || Date.now()
-        };
-      });
-      lsSet('vf_wv_' + campID, newWV);
-    }
-    
-    // Migreer VW's naar campagne-specifiek
-    if (!ls('vf_vw_' + campID, null)) {
-      const newVW = {};
-      Object.entries(oudVW).forEach(([id, vwData]) => {
-        newVW[id] = {
-          person_id: id,
-          voornaam: vwData.voornaam,
-          naam: vwData.naam,
-          roepnaam: vwData.roepnaam,
-          telefoon: vwData.telefoon,
-          wijken: vwData.wijken || [],
-          rol: 'vrijwilliger',
-          wijkverantwoordelijke_id: vwData.wijkverantwoordelijke_id || null,
-          straten: vwData.straten || [],
-          toegewezenOp: vwData.gemaaktOp || Date.now()
-        };
-      });
-      lsSet('vf_vw_' + campID, newVW);
-    }
-  });
-  
-  // Migreer ook personen naar vf_personen als nog niet gedaan
-  if (!ls('vf_personen', null)) {
-    const personen = {};
-    
-    // Voeg WV's toe
-    Object.entries(oudWV).forEach(([id, wvData]) => {
-      personen[id] = {
-        id,
-        voornaam: wvData.voornaam,
-        naam: wvData.naam,
-        roepnaam: wvData.roepnaam,
-        telefoon: wvData.telefoon,
-        email: '',
-        gemaaktOp: wvData.gemaaktOp || Date.now()
-      };
-    });
-    
-    // Voeg VW's toe (niet dubbel als al als WV)
-    Object.entries(oudVW).forEach(([id, vwData]) => {
-      if (!personen[id]) {
-        personen[id] = {
-          id,
-          voornaam: vwData.voornaam,
-          naam: vwData.naam,
-          roepnaam: vwData.roepnaam,
-          telefoon: vwData.telefoon,
-          email: '',
-          gemaaktOp: vwData.gemaaktOp || Date.now()
-        };
-      }
-    });
-    
-    lsSet('vf_personen', personen);
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // STATE
@@ -1859,110 +1645,10 @@ function toonOpslagWaarschuwing() {
 //   resultaten: {straatnaam: {status,datum,opmerking,vrijwId}} }
 // GeometryCache: {straatnaam: [[lat,lng],...] | null}
 
-function getWVs() {
-  // ✨ FASE 4: Campagne-specifieke WV's
-  const campagneId = getActiveCampagneId();
-  if (campagneId) {
-    const campverData = ls('vf_wv_' + campagneId, {});
-    if (Object.keys(campverData).length > 0) {
-      // Campagne-specifieke WV's gevonden → converteer naar oud format voor compatibility
-      return Object.values(campverData).map(wv => ({
-        id: wv.person_id || wv.id,
-        voornaam: wv.voornaam,
-        naam: wv.naam,
-        roepnaam: wv.roepnaam,
-        gsm: wv.telefoon || wv.gsm,
-        email: wv.email,
-        wijken: wv.wijken || [],
-        vrijwIds: (wv.vrijwilligers || []).map(id => id.person_id || id),
-        straten: wv.straten || [],
-        gemaaktOp: wv.toegewezenOp
-      }));
-    }
-  }
-  // Fallback naar globaal (legacy)
-  return ls('vf_wv', []);
-}
-
-function saveWVs(wvArray) {
-  // ✨ FASE 4: Sla op naar campagne-specifieke storage
-  const campagneId = getActiveCampagneId();
-  if (campagneId) {
-    // Converteer terug naar campagne-format
-    const campverData = {};
-    wvArray.forEach(wv => {
-      campverData[wv.id] = {
-        person_id: wv.id,
-        voornaam: wv.voornaam,
-        naam: wv.naam,
-        roepnaam: wv.roepnaam,
-        telefoon: wv.gsm || wv.telefoon,
-        email: wv.email,
-        wijken: wv.wijken,
-        rol: 'wijkverantwoordelijke',
-        vrijwilligers: wv.vrijwIds || [],
-        straten: wv.straten || [],
-        toegewezenOp: wv.gemaaktOp || Date.now()
-      };
-    });
-    lsSet('vf_wv_' + campagneId, campverData);
-  } else {
-    // Fallback naar globaal
-    lsSet('vf_wv', wvArray);
-  }
-}
-function getVrijw() {
-  // ✨ FASE 4: Campagne-specifieke vrijwilligers
-  const campagneId = getActiveCampagneId();
-  if (campagneId) {
-    const vwData = ls('vf_vw_' + campagneId, {});
-    if (Object.keys(vwData).length > 0) {
-      // Campagne-specifieke VW's → converteer naar oud format
-      return Object.values(vwData).map(vw => ({
-        id: vw.person_id || vw.id,
-        voornaam: vw.voornaam,
-        naam: vw.naam,
-        roepnaam: vw.roepnaam,
-        gsm: vw.telefoon || vw.gsm,
-        email: vw.email,
-        wijken: vw.wijken || [],
-        wvId: vw.wijkverantwoordelijke_id,
-        straten: vw.straten || [],
-        gemaaktOp: vw.toegewezenOp
-      }));
-    }
-  }
-  // Fallback naar globaal (legacy)
-  return ls('vf_vrijw', []);
-}
-
-function saveVrijwData(vwArray) {
-  // ✨ FASE 4: Sla op naar campagne-specifieke storage
-  const campagneId = getActiveCampagneId();
-  if (campagneId) {
-    // Converteer terug naar campagne-format
-    const vwData = {};
-    vwArray.forEach(vw => {
-      vwData[vw.id] = {
-        person_id: vw.id,
-        voornaam: vw.voornaam,
-        naam: vw.naam,
-        roepnaam: vw.roepnaam,
-        telefoon: vw.gsm || vw.telefoon,
-        email: vw.email,
-        wijken: vw.wijken,
-        rol: 'vrijwilliger',
-        wijkverantwoordelijke_id: vw.wvId || null,
-        straten: vw.straten || [],
-        toegewezenOp: vw.gemaaktOp || Date.now()
-      };
-    });
-    lsSet('vf_vw_' + campagneId, vwData);
-  } else {
-    // Fallback naar globaal
-    lsSet('vf_vrijw', vwArray);
-  }
-}
+function getWVs() { return ls('vf_wv', []); }
+function saveWVs(a) { lsSet('vf_wv', a); }
+function getVrijw() { return ls('vf_vrijw', []); }
+function saveVrijwData(a) { lsSet('vf_vrijw', a); }
 // ── CAMPAGNES (bovenste laag — bedeeldagen + status horen bij een campagne) ──
 function getCampagnes(){ return ls('vf_campagnes', []); }
 function saveCampagnes(a){ lsSet('vf_campagnes', a); }
@@ -1996,18 +1682,7 @@ function saveStatus(obj) { lsSet(statusKey(), obj); }
 function getStraatStatus(naam){ const s=getStatus()[naam]; return s?s.status:'notdone'; }
 function setStraatStatus(naam, status, bron='manueel', extra={}){
   const all=getStatus();
-  all[naam]={
-    status,
-    datum: extra.datum || new Date().toISOString().slice(0,10),
-    bron,
-    opmerking: extra.opmerking || (all[naam]?.opmerking || ''),
-    // ✨ NIEUW: Bedeler-tracking (optioneel)
-    bedeler: extra.bedeler || (all[naam]?.bedeler || undefined),
-    bedeldOp: extra.bedeler ? (extra.bedeldOp || new Date().toISOString()) : (all[naam]?.bedeldOp || undefined)
-  };
-  // Opschonen: undefined velden verwijderen
-  if (all[naam].bedeler === undefined) delete all[naam].bedeler;
-  if (all[naam].bedeldOp === undefined) delete all[naam].bedeldOp;
+  all[naam]={status, datum:extra.datum||new Date().toISOString().slice(0,10), bron, opmerking:extra.opmerking||(all[naam]?.opmerking||'')};
   saveStatus(all);
 }
 function saveDagen(a) { lsSet('vf_dagen', a); }
@@ -2089,16 +1764,6 @@ function initTabs() {
       if (btn.dataset.tab==='kaart') setTimeout(()=>map&&map.invalidateSize(),100);
       if (btn.dataset.tab==='straten') renderStratenTabel();
       if (btn.dataset.tab==='campagne') renderCampagneTab();
-      if (btn.dataset.tab==='personen') renderPersonenTabel();
-      if (btn.dataset.tab==='campver') {
-        // Vul campagne-dropdown in
-        const sel = document.getElementById('campver-campagne-select');
-        if (sel) {
-          sel.innerHTML = '<option value="">— Selecteer campagne —</option>' +
-            getCampagnes().map(c => `<option value="${c.id}">${c.naam}</option>`).join('');
-        }
-        renderCampVerTab();
-      }
       if (huidigeTaal==='fr') setTimeout(()=>vertaalDOM('fr'), 30);
     });
   });
@@ -2834,177 +2499,6 @@ function saveWv(){
 function deleteWv(id){
   if(!confirm('WV verwijderen?')) return;
   saveWVs(getWVs().filter(w=>w.id!==id)); renderWvTabel(); showToast('WV verwijderd');
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ✨ PERSONEN TAB (NIEUW)
-// ═══════════════════════════════════════════════════════════════════
-
-function showPrompt(title, fields, onConfirm){
-  // Maak simpele HTML-formule in modal
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:20px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:4000;max-width:500px;width:90%;';
-  
-  let html = `<h3 style="margin-top:0;color:#2C5F8D;">${title}</h3>`;
-  fields.forEach(f => {
-    html += `<div style="margin-bottom:12px;">
-      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#555;">${f.label}</label>
-      <input type="${f.type||'text'}" placeholder="${f.placeholder||''}" value="${f.value||''}" 
-             style="width:100%;padding:6px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;box-sizing:border-box;"
-             data-field="${f.name}"/>
-    </div>`;
-  });
-  html += `<div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
-    <button onclick="this.parentElement.parentElement.remove();document.body.removeChild(document.body.querySelector('[data-prompt-overlay]'));" style="padding:6px 12px;background:#f0f0f0;border:none;border-radius:4px;cursor:pointer;">Annuleren</button>
-    <button onclick="(function(){
-      const inputs = document.querySelectorAll('[data-field]');
-      const data = {};
-      inputs.forEach(i => { data[i.dataset.field] = i.value; });
-      this.parentElement.parentElement.remove();
-      document.body.removeChild(document.body.querySelector('[data-prompt-overlay]'));
-      (${onConfirm.toString()})(data);
-    }).call(this);" style="padding:6px 12px;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;">OK</button>
-  </div>`;
-  
-  modal.innerHTML = html;
-  
-  const overlay = document.createElement('div');
-  overlay.setAttribute('data-prompt-overlay', '');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:3999;';
-  overlay.onclick = () => {
-    overlay.remove();
-    modal.remove();
-  };
-  
-  document.body.appendChild(overlay);
-  document.body.appendChild(modal);
-}
-
-function renderPersonenTabel(){
-  const personen = getPersonen();
-  const c = document.getElementById('personen-tabel-container');
-  if (!Object.keys(personen).length) {
-    c.innerHTML = '<div class="empty-table">Nog geen personen aangemaakt.</div>';
-    return;
-  }
-  
-  c.innerHTML = `<table class="data-table">
-    <thead><tr>
-      <th>Voornaam</th>
-      <th>Naam</th>
-      <th>Roepnaam</th>
-      <th>GSM</th>
-      <th>E-mail</th>
-      <th style="text-align:right;">Acties</th>
-    </tr></thead>
-    <tbody>${Object.values(personen).map(p => `<tr>
-      <td><strong>${p.voornaam}</strong></td>
-      <td>${p.naam}</td>
-      <td>${p.roepnaam || '—'}</td>
-      <td>${p.telefoon ? `<a href="https://wa.me/${p.telefoon.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:600;">📱 ${p.telefoon}</a>` : '—'}</td>
-      <td>${p.email ? `<a href="mailto:${p.email}" style="color:#185FA5;">${p.email}</a>` : '—'}</td>
-      <td><div class="actions">
-        <button class="btn-sm btn-edit" onclick="openPersonEditModal('${p.id}')">✏️</button>
-        <button class="btn-sm btn-danger" onclick="if(confirm('Persoon verwijderen?')) { deletePersoon('${p.id}'); renderPersonenTabel(); showToast('Persoon verwijderd'); }">🗑️</button>
-      </div></td>
-    </tr>`).join('')}</tbody></table>`;
-  vertaalAlsFR();
-}
-
-function openPersonToevoegModal(){
-  const personId = 'person-' + Date.now();
-  const personen = getPersonen();
-  
-  showPrompt('Nieuwe persoon', [
-    {name: 'voornaam', label: 'Voornaam *', type: 'text', required: true},
-    {name: 'naam', label: 'Naam *', type: 'text', required: true},
-    {name: 'roepnaam', label: 'Roepnaam', type: 'text'},
-    {name: 'telefoon', label: 'GSM', type: 'tel', placeholder: '+32 499 ...'},
-    {name: 'email', label: 'E-mail', type: 'email'}
-  ], (data) => {
-    if (!data.voornaam || !data.naam) { showToast('Voornaam en naam zijn verplicht', true); return; }
-    addPersoon(personId, data.voornaam, data.naam, data.roepnaam, data.telefoon, data.email);
-    renderPersonenTabel();
-    showToast('Persoon toegevoegd ✓');
-  });
-}
-
-function openPersonEditModal(personId){
-  const persoon = getPersoon(personId);
-  if (!persoon) return;
-  
-  showPrompt('Persoon wijzigen', [
-    {name: 'voornaam', label: 'Voornaam *', type: 'text', value: persoon.voornaam, required: true},
-    {name: 'naam', label: 'Naam *', type: 'text', value: persoon.naam, required: true},
-    {name: 'roepnaam', label: 'Roepnaam', type: 'text', value: persoon.roepnaam || ''},
-    {name: 'telefoon', label: 'GSM', type: 'tel', value: persoon.telefoon || '', placeholder: '+32 499 ...'},
-    {name: 'email', label: 'E-mail', type: 'email', value: persoon.email || ''}
-  ], (data) => {
-    if (!data.voornaam || !data.naam) { showToast('Voornaam en naam zijn verplicht', true); return; }
-    persoon.voornaam = data.voornaam;
-    persoon.naam = data.naam;
-    persoon.roepnaam = data.roepnaam;
-    persoon.telefoon = data.telefoon;
-    persoon.email = data.email;
-    const personen = getPersonen();
-    personen[personId] = persoon;
-    savePersonen(personen);
-    renderPersonenTabel();
-    showToast('Persoon bijgewerkt ✓');
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ✨ CAMPAGNEVERANTWOORDELIJKEN TAB (NIEUW)
-// ═══════════════════════════════════════════════════════════════════
-
-function renderCampVerTab(){
-  const campagneId = document.getElementById('campver-campagne-select')?.value;
-  if (!campagneId) {
-    document.getElementById('campver-content').innerHTML = '<p style="color:#999;">— Selecteer een campagne —</p>';
-    return;
-  }
-  
-  const campagne = getCampagnes().find(c => c.id === campagneId);
-  if (!campagne) return;
-  
-  const currentCampVerId = campagne.campagneverantwoordelijke_id;
-  const currentCampVer = currentCampVerId ? getPersoon(currentCampVerId) : null;
-  const personen = getPersonen();
-  
-  const html = `
-    <div style="margin-bottom:16px;">
-      <h3 style="font-size:14px;margin-bottom:8px;">Campagneverantwoordelijke</h3>
-      <select id="campver-select" style="width:100%;max-width:400px;padding:8px;border:1px solid #ccc;border-radius:6px;">
-        <option value="">— Niemand —</option>
-        ${Object.values(personen).map(p => `
-          <option value="${p.id}" ${currentCampVerId === p.id ? 'selected' : ''}>
-            ${p.voornaam} ${p.naam}${p.roepnaam ? ' (' + p.roepnaam + ')' : ''}
-          </option>
-        `).join('')}
-      </select>
-      <button class="btn-primary" onclick="saveCampVer('${campagneId}')" style="margin-left:8px;">💾 Opslaan</button>
-    </div>
-    
-    ${currentCampVer ? `
-      <div style="background:#eaf3de;border-left:4px solid #3B6D11;padding:12px;border-radius:4px;">
-        <p style="margin:0;color:#3B6D11;font-weight:600;">👤 ${currentCampVer.voornaam} ${currentCampVer.naam}</p>
-        <p style="margin:4px 0 0 0;color:#666;font-size:12px;">
-          ${currentCampVer.telefoon ? `📱 ${currentCampVer.telefoon}` : ''} 
-          ${currentCampVer.email ? `📧 ${currentCampVer.email}` : ''}
-        </p>
-      </div>
-    ` : ''}
-  `;
-  
-  document.getElementById('campver-content').innerHTML = html;
-}
-
-function saveCampVer(campagneId){
-  const personId = document.getElementById('campver-select').value || null;
-  setCampVer(campagneId, personId);
-  renderCampVerTab();
-  showToast('Campagneverantwoordelijke opgeslagen ✓');
 }
 
 function renderWvTabel(){
@@ -4002,10 +3496,9 @@ function renderStratenTabel(){
   if(!lijst.length){ c.innerHTML='<div style="padding:24px;text-align:center;color:#999;">Geen straten gevonden.</div>'; return; }
   const toonBussen = Object.keys(addrCount).length>0;
   c.innerHTML=`<table class="straten-tabel"><thead><tr>
-    <th>Straat</th><th>Wijk</th><th>Status</th><th>Bedeler</th>${toonBussen?'<th>± bussen</th>':''}<th>Laatst gewijzigd</th>
+    <th>Straat</th><th>Wijk</th><th>Status</th>${toonBussen?'<th>± bussen</th>':''}<th>Laatst gewijzigd</th>
   </tr></thead><tbody>${lijst.map(s=>{
     const info=all[s]||{}; const st=info.status||'notdone';
-    const bedeler = info.bedeler;
     return `<tr>
       <td class="st-naam">${s}</td>
       <td class="st-wijk">${STREET_TO_WIJK[s]||'—'}</td>
@@ -4014,7 +3507,6 @@ function renderStratenTabel(){
         <option value="bezig"${st==='bezig'?' selected':''}>Bezig</option>
         <option value="done"${st==='done'?' selected':''}>Bedeeld</option>
       </select></td>
-      <td style="font-size:12px;color:#666;">${bedeler ? `<span style="background:#e6f1fb;padding:2px 6px;border-radius:3px;color:#185FA5;font-weight:600;">👤 ${bedeler.voornaam}</span>` : '—'}</td>
       ${toonBussen?`<td style="font-size:13px;color:#185FA5;font-weight:500;">${bussenVoorStraat(s)||'—'}</td>`:''}
       <td style="color:#999;font-size:12px;">${info.datum?info.datum+(info.bron?' ('+info.bron+')':''):'—'}</td>
     </tr>`;
@@ -4174,9 +3666,6 @@ function exportStatusExcel(){
   // Elke init-stap apart — een fout in één stap blokkeert de rest niet
   const safe = (fn, naam) => { try { fn(); } catch(e) { console.error('Init fout in ' + naam + ':', e); } };
 
-  // ✨ NIEUW: Migreer oude WV/VW data naar campagne-specifieke structuur
-  safe(migreerOudeDataNaarNieuweStructuur, 'migreerOudeDataNaarNieuweStructuur');
-  
   safe(migreerNaarCampagnes, 'migreerNaarCampagnes');
   safe(initTabs, 'initTabs');
   safe(initMap, 'initMap');
