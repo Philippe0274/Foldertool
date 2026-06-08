@@ -2785,113 +2785,274 @@ function openToewijzingPanel(dagId){
   currentToewijzingDagId=dagId;
   const dag=getDagen().find(d=>d.id===dagId);
   if(!dag) return;
-  const vrijw=getVrijw();
-  const wvs=getWVs();
-  if(!vrijw.length){ showToast('Voeg eerst vrijwilligers toe via het tabblad Vrijwilligers.',true); return; }
-
-  // Maak een modal-achtig paneel in de dag-kaart
   const dagEl=document.getElementById('dag-'+dagId);
   let panel=document.getElementById('panel-'+dagId);
   if(panel){ panel.remove(); return; }
-
-  const toewijzingen=dag.toewijzingen||{};
   panel=document.createElement('div');
   panel.id='panel-'+dagId;
   panel.style.cssText='border-top:1px solid #e0e0e0;padding:16px 18px;background:#f9fafb;';
-
-  panel.innerHTML=`<h4 style="font-size:14px;font-weight:700;margin-bottom:12px;">👥 Toewijzingen voor ${dag.naam||dag.datum}</h4>
-  <p style="font-size:12px;color:#888;margin-bottom:14px;">Wijs per vrijwilliger straten toe. Per WV kan je ook straten buiten de standaardwijk toevoegen.</p>
-  <div id="dag-flyer-totaal-${dagId}" style="margin-bottom:12px;"></div>
-  <table class="data-table" style="margin-bottom:14px;">
-    <thead><tr><th>Vrijwilliger</th><th>Toegewezen straten</th>${heeftBussenData()?'<th>Flyers (totaal · nog)</th>':''}<th>WV</th><th>Acties</th></tr></thead>
-    <tbody id="toewijzing-rows-${dagId}"></tbody>
-  </table>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <select id="tw-vrijw-${dagId}" style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
-      <option value="">Vrijwilliger kiezen...</option>
-      ${vrijw.map(v=>`<option value="${v.id}">${v.voornaam} ${v.naam}${v.roepnaam?' ('+v.roepnaam+')':''}</option>`).join('')}
-    </select>
-    <select id="tw-wv-${dagId}" style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
-      <option value="">WV koppelen (optioneel)...</option>
-      ${wvs.map(w=>`<option value="${w.id}">${w.voornaam} ${w.naam}</option>`).join('')}
-    </select>
-    <button class="btn-primary" onclick="addToewijzing('${dagId}')">+ Toevoegen</button>
-  </div>`;
-
   dagEl.appendChild(panel);
-  renderToewijzingRows(dagId);
+  renderWijkGroepenPanel(dagId);
 }
 
-function renderToewijzingRows(dagId){
+// ── Nieuw: wijk-gebaseerd toewijzingspaneel ──
+function renderWijkGroepenPanel(dagId){
+  const panel=document.getElementById('panel-'+dagId);
+  if(!panel) return;
   const dag=getDagen().find(d=>d.id===dagId);
-  const tbody=document.getElementById('toewijzing-rows-'+dagId);
-  if(!tbody||!dag) return;
+  if(!dag) return;
+  const vrijw=getVrijw();
+  const wvs=getWVs();
+  if(!dag.wijkGroepen) dag.wijkGroepen=[];
   const tw=dag.toewijzingen||{};
-  const vrijw=getVrijw(), wvs=getWVs();
-  if(!Object.keys(tw).length){ tbody.innerHTML=`<tr><td colspan="4" class="empty-table">Nog geen vrijwilligers toegewezen.</td></tr>`; return; }
-  const toonFlyers=heeftBussenData();
-  tbody.innerHTML=Object.entries(tw).map(([vId,info])=>{
-    const v=vrijw.find(x=>x.id===vId)||{voornaam:vId,naam:''};
-    const wv=info.wvId?wvs.find(w=>w.id===info.wvId):null;
-    const stratenNamen=(info.straten||[]).map(s=>typeof s==='string'?s:s.naam);
-    const cnt=stratenNamen.length;
-    let flyerCel='—';
-    if(toonFlyers && cnt){
-      const fb=flyerBerekening(stratenNamen);
-      flyerCel=`<span title="Totaal aantal bussen voor alle toegewezen straten">📬 ${fb.totaalFlyers}</span> <span style="color:#c0392b;" title="Nog te bedelen (zonder de reeds bedeelde straten)">· nog ${fb.openFlyers}</span>`;
-    }
-    return `<tr>
-      <td><strong>${v.roepnaam||v.voornaam+' '+v.naam}</strong></td>
-      <td><span class="badge badge-blue">${cnt} straten</span> <button class="btn-sm btn-edit" style="margin-left:6px;" onclick="openStratenKiezer('${dagId}','${vId}')">✏️ Straten kiezen</button></td>
-      ${toonFlyers?`<td style="font-size:12px;">${flyerCel}</td>`:''}
-      <td>${wv?wv.voornaam+' '+wv.naam:'—'}</td>
-      <td><div class="actions">
-        <button class="btn-sm btn-whatsapp" onclick="prepareWhatsApp('${dagId}','${vId}')">📱 WhatsApp</button>
-        <button class="btn-sm btn-excel" onclick="exportVrijwExcel('${dagId}','${vId}')">📥 Excel</button>
-        <button class="btn-sm btn-danger" onclick="removeToewijzing('${dagId}','${vId}')">🗑️</button>
-      </div></td>
-    </tr>`;
-  }).join('');
 
-  // Dag-totaal flyers (alle toegewezen straten samen, ontdubbeld)
+  // Wie zit al in een wijk?
+  const inWijk=new Set((dag.wijkGroepen||[]).flatMap(wg=>wg.vwIds||[]));
+  // Vrije bedelers = in toewijzingen maar niet in een wijkgroep
+  const vrije=Object.keys(tw).filter(vId=>!inWijk.has(vId));
+
+  let html=`<h4 style="font-size:14px;font-weight:700;margin-bottom:4px;">👥 Toewijzingen voor ${dag.naam||dag.datum}</h4>
+  <p style="font-size:12px;color:#888;margin-bottom:12px;">Voeg wijken toe en wijs per wijk een WV en bedelers toe. Of voeg vrije bedelers toe zonder wijk.</p>
+  <div id="dag-flyer-totaal-${dagId}" style="margin-bottom:12px;"></div>`;
+
+  // ── Wijk-groepen ──
+  (dag.wijkGroepen||[]).forEach(wg=>{
+    const wv=wg.wvId?wvs.find(w=>w.id===wg.wvId):null;
+    const wvNaam=wv?(wv.roepnaam||wv.voornaam+' '+wv.naam).trim():'— geen WV —';
+    const toonFlyers=heeftBussenData();
+
+    html+=`<div style="background:#fff;border:1px solid #b5d4f4;border-radius:8px;padding:14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+        <strong style="font-size:13px;color:#185FA5;">🏘️ ${wg.wijkNaam}</strong>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:12px;color:#555;">WV: <strong>${wvNaam}</strong>${wv?.gsm?` <a href="https://wa.me/${wv.gsm.replace(/\D/g,'')}" target="_blank" style="color:#25D366;">📱</a>`:''}</span>
+          <button class="btn-sm btn-danger" onclick="verwijderWijkGroep('${dagId}','${wg.id}')">🗑️ wijk</button>
+        </div>
+      </div>`;
+
+    // Bedelers in deze wijk
+    (wg.vwIds||[]).forEach(vId=>{
+      const v=vrijw.find(x=>x.id===vId)||{voornaam:'?',naam:''};
+      const naam=(v.roepnaam||v.voornaam+' '+v.naam).trim();
+      const stratenNamen=((tw[vId]?.straten)||[]).map(s=>typeof s==='string'?s:s.naam);
+      const cnt=stratenNamen.length;
+      let flyerTxt='';
+      if(toonFlyers&&cnt){const fb=flyerBerekening(stratenNamen);flyerTxt=`<span style="font-size:11px;color:#888;">📬 ${fb.totaalFlyers} · nog ${fb.openFlyers}</span>`;}
+      html+=`<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f0f0f0;flex-wrap:wrap;">
+        <span style="font-size:13px;min-width:120px;flex:1;"><strong>${naam}</strong></span>
+        <span class="badge badge-blue">${cnt} straten</span>${flyerTxt}
+        <button class="btn-sm btn-edit" onclick="openStratenKiezerWijk('${dagId}','${vId}','${wg.wijkNaam}')">✏️ Straten</button>
+        <button class="btn-sm btn-whatsapp" onclick="prepareWhatsApp('${dagId}','${vId}')">📱</button>
+        <button class="btn-sm btn-excel" onclick="exportVrijwExcel('${dagId}','${vId}')">📥</button>
+        <button class="btn-sm btn-danger" onclick="verwijderBedelerUitWijk('${dagId}','${wg.id}','${vId}')">🗑️</button>
+      </div>`;
+    });
+
+    // Bedeler toevoegen aan wijk
+    const beschikbaarVoorWijk=vrijw.filter(v=>!inWijk.has(v.id)||(wg.vwIds||[]).includes(v.id));
+    const nogNietInWijk=vrijw.filter(v=>!(wg.vwIds||[]).includes(v.id));
+    html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <select id="tw-vw-${wg.id}" style="flex:1;min-width:160px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
+        <option value="">Bedeler toevoegen aan wijk...</option>
+        ${nogNietInWijk.map(v=>`<option value="${v.id}">${(v.roepnaam||v.voornaam+' '+v.naam).trim()}</option>`).join('')}
+      </select>
+      <button class="btn-primary" onclick="addBedelerAanWijk('${dagId}','${wg.id}')">+ Toevoegen</button>
+    </div></div>`;
+  });
+
+  // ── Wijk toevoegen ──
+  const gebruikteWijken=new Set((dag.wijkGroepen||[]).map(wg=>wg.wijkNaam));
+  const beschikbareWijken=ALL_WIJKEN.filter(w=>!gebruikteWijken.has(w));
+  html+=`<div style="background:#eaf3de;border:1px solid #97c459;border-radius:8px;padding:12px;margin-bottom:14px;">
+    <strong style="font-size:12px;color:#3B6D11;">+ Wijk toevoegen aan deze dag</strong>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+      <select id="tw-nieuwe-wijk-${dagId}" style="flex:1;min-width:150px;padding:6px 10px;border:1px solid #97c459;border-radius:6px;font-size:13px;" onchange="updateWvDropdownVoorWijk('${dagId}')">
+        <option value="">Kies wijk...</option>
+        ${beschikbareWijken.map(w=>`<option value="${w}">${w}</option>`).join('')}
+      </select>
+      <select id="tw-wv-voor-wijk-${dagId}" style="flex:1;min-width:160px;padding:6px 10px;border:1px solid #97c459;border-radius:6px;font-size:13px;">
+        <option value="">— Kies eerst een wijk —</option>
+      </select>
+      <button class="btn-primary" onclick="addWijkGroep('${dagId}')">+ Wijk toevoegen</button>
+    </div>
+  </div>`;
+
+  // ── Vrije bedelers (geen wijk, of legacy data) ──
+  html+=`<div style="background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:14px;">
+    <strong style="font-size:12px;color:#555;">📋 Vrije bedelers (geen specifieke wijk)</strong>`;
+  vrije.forEach(vId=>{
+    const v=vrijw.find(x=>x.id===vId)||{voornaam:'?',naam:''};
+    const naam=(v.roepnaam||v.voornaam+' '+v.naam).trim();
+    const stratenNamen=((tw[vId]?.straten)||[]).map(s=>typeof s==='string'?s:s.naam);
+    const cnt=stratenNamen.length;
+    html+=`<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f0f0f0;flex-wrap:wrap;margin-top:6px;">
+      <span style="font-size:13px;min-width:120px;flex:1;"><strong>${naam}</strong></span>
+      <span class="badge badge-blue">${cnt} straten</span>
+      <button class="btn-sm btn-edit" onclick="openStratenKiezer('${dagId}','${vId}')">✏️ Straten</button>
+      <button class="btn-sm btn-whatsapp" onclick="prepareWhatsApp('${dagId}','${vId}')">📱</button>
+      <button class="btn-sm btn-excel" onclick="exportVrijwExcel('${dagId}','${vId}')">📥</button>
+      <button class="btn-sm btn-danger" onclick="removeToewijzing('${dagId}','${vId}')">🗑️</button>
+    </div>`;
+  });
+  html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+    <select id="tw-vrijw-${dagId}" style="flex:1;min-width:160px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
+      <option value="">Vrije bedeler toevoegen...</option>
+      ${vrijw.filter(v=>!inWijk.has(v.id)&&!vrije.includes(v.id)).map(v=>`<option value="${v.id}">${(v.roepnaam||v.voornaam+' '+v.naam).trim()}</option>`).join('')}
+    </select>
+    <button class="btn-primary" onclick="addToewijzing('${dagId}')">+ Toevoegen</button>
+  </div></div>`;
+
+  panel.innerHTML=html;
+  // Flyer totaal berekenen
   const totEl=document.getElementById('dag-flyer-totaal-'+dagId);
   if(totEl){
+    const toonFlyers=heeftBussenData();
     if(toonFlyers){
       const alleStraten=new Set();
       Object.values(tw).forEach(info=>(info.straten||[]).forEach(s=>alleStraten.add(typeof s==='string'?s:s.naam)));
-      const fb=flyerBerekening([...alleStraten]);
-      totEl.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <div class="stat-pill" style="background:#e6f1fb;color:#185FA5;">📬 ${t('Hele dag')}: ± ${fb.totaalFlyers} ${t('flyers totaal')}${fb.marge?` (+${fb.marge}%)`:''}</div>
-        <div class="stat-pill" style="background:#fde8e8;color:#c0392b;">⬜ ${t('Nog te bedelen')}: ± ${fb.openFlyers} ${t('flyers')}</div>
-        <div class="stat-pill" style="background:#eef1f5;color:#444;">📭 ${fb.totaalBussen} ${t('bussen')} · ${alleStraten.size} ${t('straten')}</div>
-      </div>`;
-    } else {
-      totEl.innerHTML=`<div class="stat-pill" style="background:#f5f5f5;color:#999;cursor:pointer;display:inline-flex;" onclick="document.querySelector('.main-tab[data-tab=\'straten\']').click();">📬 Laad eerst de bussen-schatting (tabblad Straten & Wijken) voor flyer-aantallen</div>`;
+      if(alleStraten.size){
+        const fb=flyerBerekening([...alleStraten]);
+        totEl.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="stat-pill" style="background:#e6f1fb;color:#185FA5;">📬 Hele dag: ± ${fb.totaalFlyers} flyers${fb.marge?` (+${fb.marge}%)`:''}</div>
+          <div class="stat-pill" style="background:#fde8e8;color:#c0392b;">⬜ Nog te bedelen: ± ${fb.openFlyers} flyers</div>
+          <div class="stat-pill" style="background:#eef1f5;color:#444;">📭 ${fb.totaalBussen} bussen · ${alleStraten.size} straten</div>
+        </div>`;
+      }
     }
   }
   vertaalAlsFR();
 }
 
+function renderToewijzingRows(dagId){
+  // Delegeer naar nieuwe panel renderer (backward compat hook)
+  if(document.getElementById('panel-'+dagId)) renderWijkGroepenPanel(dagId);
+}
+
+// ── Wijk toevoegen / verwijderen ──
+function updateWvDropdownVoorWijk(dagId){
+  const wijkNaam=document.getElementById('tw-nieuwe-wijk-'+dagId)?.value||'';
+  const sel=document.getElementById('tw-wv-voor-wijk-'+dagId);
+  if(!sel) return;
+  if(!wijkNaam){ sel.innerHTML='<option value="">— Kies eerst een wijk —</option>'; return; }
+  const wvsMetWijk=getWVs().filter(w=>(w.wijken||[]).includes(wijkNaam));
+  const alleWVs=getWVs();
+  sel.innerHTML='<option value="">— Geen WV —</option>'+
+    (wvsMetWijk.length?
+      '<optgroup label="WV\'s van deze wijk">'+wvsMetWijk.map(w=>`<option value="${w.id}">${(w.roepnaam||w.voornaam+' '+w.naam).trim()}</option>`).join('')+'</optgroup>':'')+
+    (alleWVs.filter(w=>!wvsMetWijk.find(x=>x.id===w.id)).length?
+      '<optgroup label="Andere WV\'s">'+alleWVs.filter(w=>!wvsMetWijk.find(x=>x.id===w.id)).map(w=>`<option value="${w.id}">${(w.roepnaam||w.voornaam+' '+w.naam).trim()}</option>`).join('')+'</optgroup>':'');
+}
+
+function addWijkGroep(dagId){
+  const wijkNaam=document.getElementById('tw-nieuwe-wijk-'+dagId)?.value||'';
+  const wvId=document.getElementById('tw-wv-voor-wijk-'+dagId)?.value||null;
+  if(!wijkNaam){ showToast('Kies een wijk.',true); return; }
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId);
+  if(!dag) return;
+  if(!dag.wijkGroepen) dag.wijkGroepen=[];
+  if(dag.wijkGroepen.find(wg=>wg.wijkNaam===wijkNaam)){ showToast('Wijk al toegevoegd.',true); return; }
+  dag.wijkGroepen.push({id:uid(),wijkNaam,wvId:wvId||null,vwIds:[]});
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
+  showToast(`Wijk ${wijkNaam} toegevoegd ✓`);
+}
+
+function verwijderWijkGroep(dagId,wgId){
+  if(!confirm('Wijk verwijderen? De bedelers en hun straten worden ook losgekoppeld.')) return;
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId);
+  if(!dag||!dag.wijkGroepen) return;
+  const wg=dag.wijkGroepen.find(w=>w.id===wgId);
+  if(wg){
+    // Verwijder ook alle bedelers uit toewijzingen
+    (wg.vwIds||[]).forEach(vId=>{ if(dag.toewijzingen) delete dag.toewijzingen[vId]; });
+    dag.wijkGroepen=dag.wijkGroepen.filter(w=>w.id!==wgId);
+  }
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
+  showToast('Wijk verwijderd');
+}
+
+// ── Bedeler aan wijk toevoegen / verwijderen ──
+function addBedelerAanWijk(dagId,wgId){
+  const vId=document.getElementById('tw-vw-'+wgId)?.value||'';
+  if(!vId){ showToast('Kies een bedeler.',true); return; }
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId);
+  if(!dag||!dag.wijkGroepen) return;
+  const wg=dag.wijkGroepen.find(w=>w.id===wgId);
+  if(!wg) return;
+  if(!wg.vwIds) wg.vwIds=[];
+  if(wg.vwIds.includes(vId)){ showToast('Bedeler al in deze wijk.',true); return; }
+  wg.vwIds.push(vId);
+  // Zet ook in dag.toewijzingen zodat straten kiezen / export werkt
+  if(!dag.toewijzingen) dag.toewijzingen={};
+  if(!dag.toewijzingen[vId]){
+    dag.toewijzingen[vId]={wvId:wg.wvId||null,wijkNaam:wg.wijkNaam,straten:[]};
+  } else {
+    dag.toewijzingen[vId].wvId=wg.wvId||null;
+    dag.toewijzingen[vId].wijkNaam=wg.wijkNaam;
+  }
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
+  showToast('Bedeler toegevoegd ✓');
+}
+
+function verwijderBedelerUitWijk(dagId,wgId,vId){
+  if(!confirm('Bedeler verwijderen uit wijk? Toegewezen straten gaan verloren.')) return;
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId);
+  if(!dag||!dag.wijkGroepen) return;
+  const wg=dag.wijkGroepen.find(w=>w.id===wgId);
+  if(wg) wg.vwIds=(wg.vwIds||[]).filter(id=>id!==vId);
+  if(dag.toewijzingen) delete dag.toewijzingen[vId];
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
+}
+
+// ── Straten kiezen met wijk als startfilter ──
+function openStratenKiezerWijk(dagId,vId,wijkNaam){
+  // Zet tijdelijk de straten-kiezer wijk-filter op de opgegeven wijk
+  // Dan roep je de originele stratenKiezer aan
+  openStratenKiezer(dagId,vId);
+  // Na openen: stel wijk-filter in
+  setTimeout(()=>{
+    const wf=document.getElementById('sk-wijk-'+vId);
+    if(wf){ wf.value=wijkNaam; filterStratenKiezer(vId); }
+  },50);
+}
+
 function addToewijzing(dagId){
-  const vId=document.getElementById('tw-vrijw-'+dagId).value;
-  const wvId=document.getElementById('tw-wv-'+dagId).value;
-  if(!vId){ showToast('Kies een vrijwilliger.',true); return; }
+  const vId=document.getElementById('tw-vrijw-'+dagId)?.value||'';
+  if(!vId){ showToast('Kies een bedeler.',true); return; }
   const dagen=getDagen();
   const dag=dagen.find(d=>d.id===dagId);
   if(!dag) return;
   if(!dag.toewijzingen) dag.toewijzingen={};
-  if(dag.toewijzingen[vId]){ showToast('Vrijwilliger al toegewezen.',true); return; }
-  dag.toewijzingen[vId]={wvId:wvId||null,straten:[]};
-  saveDagen(dagen); renderToewijzingRows(dagId); renderDagLijst();
-  showToast('Vrijwilliger toegevoegd ✓');
+  if(dag.toewijzingen[vId]){ showToast('Bedeler al toegewezen.',true); return; }
+  dag.toewijzingen[vId]={wvId:null,straten:[]};
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
+  showToast('Bedeler toegevoegd ✓');
 }
 
 function removeToewijzing(dagId,vId){
   if(!confirm('Toewijzing verwijderen?')) return;
   const dagen=getDagen();
   const dag=dagen.find(d=>d.id===dagId);
-  if(dag?.toewijzingen) delete dag.toewijzingen[vId];
-  saveDagen(dagen); renderToewijzingRows(dagId); renderDagLijst();
+  if(!dag) return;
+  if(dag.toewijzingen) delete dag.toewijzingen[vId];
+  // Ook uit wijkGroepen verwijderen mocht hij er in zitten
+  (dag.wijkGroepen||[]).forEach(wg=>{ wg.vwIds=(wg.vwIds||[]).filter(id=>id!==vId); });
+  saveDagen(dagen);
+  renderWijkGroepenPanel(dagId);
+  renderDagLijst();
 }
 
 // ── Straten kiezen voor vrijwilliger ──
