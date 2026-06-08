@@ -1242,6 +1242,13 @@ header.app-header::after {
           <label>Notitie / vrij veld</label>
           <textarea id="cmp-notitie" rows="4" placeholder="Vrije tekst — bv. doelstelling, budget, oplagedetails, contactpersonen..." style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
         </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Campagneverantwoordelijke</label>
+          <select id="cmp-campver" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
+            <option value="">— Niemand aangeduid —</option>
+          </select>
+          <p style="font-size:11px;color:#888;margin:4px 0 0;">Kies uit de bestaande WV's en vrijwilligers.</p>
+        </div>
         <input type="hidden" id="cmp-edit-id"/>
         <div class="form-actions">
           <button class="btn-primary" onclick="saveCampagne()">💾 Opslaan</button>
@@ -1255,7 +1262,7 @@ header.app-header::after {
 </div>
 
 <!-- TAB: STRATEN & WIJKEN -->
-<!-- TAB: VERGELIJKING (NIEUW) -->
+<!-- TAB: VERGELIJKING -->
 <div class="tab-page" id="tab-vergelijking">
   <div class="beheer-page">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
@@ -1267,15 +1274,10 @@ header.app-header::after {
         <button class="btn-primary" onclick="exportVergelijkingExcel()">📥 Excel exporteren</button>
       </div>
     </div>
-
-    <!-- Overzichtstabel alle campagnes -->
     <div id="verg-totaal-container" style="margin-bottom:24px;"></div>
-
-    <!-- Detail per wijk -->
     <div id="verg-wijk-container"></div>
   </div>
 </div>
-
 
 <div class="tab-page" id="tab-straten">
   <div class="beheer-page">
@@ -3309,6 +3311,17 @@ function openCampagneForm(id=null){
   document.getElementById('cmp-naam').value=c?.naam||'';
   document.getElementById('cmp-notitie').value=c?.notitie||'';
   document.getElementById('cmp-edit-id').value=id||'';
+  // Campver dropdown vullen vanuit bestaande WV's + vrijwilligers
+  const campverSel = document.getElementById('cmp-campver');
+  const wvs = getWVs();
+  const vws = getVrijw();
+  const alles = [
+    ...wvs.map(p => ({ id: p.id, label: `👤 ${(p.roepnaam||p.voornaam||'').trim()} ${p.naam||''} (WV)`.trim() })),
+    ...vws.filter(v => !wvs.find(w => w.id === v.id))
+          .map(p => ({ id: p.id, label: `🙋 ${(p.roepnaam||p.voornaam||'').trim()} ${p.naam||''}`.trim() }))
+  ].sort((a,b) => a.label.localeCompare(b.label));
+  campverSel.innerHTML = '<option value="">— Niemand aangeduid —</option>' +
+    alles.map(p => `<option value="${p.id}" ${c?.campver_id===p.id?'selected':''}>${p.label}</option>`).join('');
   document.getElementById('campagne-form-card').style.display='block';
   document.getElementById('campagne-form-card').scrollIntoView({behavior:'smooth'});
 }
@@ -3317,13 +3330,14 @@ function saveCampagne(){
   const naam=document.getElementById('cmp-naam').value.trim();
   if(!naam){ showToast('Naam is verplicht.',true); return; }
   const notitie=document.getElementById('cmp-notitie').value.trim();
+  const campver_id=document.getElementById('cmp-campver').value||null;
   const camps=getCampagnes();
   if(cmpEditId){
     const i=camps.findIndex(x=>x.id===cmpEditId);
-    if(i>-1) camps[i]={...camps[i],naam,notitie};
+    if(i>-1) camps[i]={...camps[i],naam,notitie,campver_id};
   } else {
     const id=uid();
-    camps.push({id,naam,notitie,created:Date.now()});
+    camps.push({id,naam,notitie,campver_id,created:Date.now()});
     setActiveCampagneId(id); // nieuwe campagne wordt meteen actief
   }
   saveCampagnes(camps);
@@ -3407,13 +3421,22 @@ function renderCampagneTab(){
   if(!c) return;
   const camps=getCampagnes(); const act=getActiveCampagneId();
   c.innerHTML=`<table class="data-table">
-    <thead><tr><th>Campagne</th><th>Notitie</th><th>Bedeeldagen</th><th>Status</th><th style="text-align:right;">Acties</th></tr></thead>
+    <thead><tr><th>Campagne</th><th>Campagneverantwoordelijke</th><th>Notitie</th><th>Bedeeldagen</th><th>Status</th><th style="text-align:right;">Acties</th></tr></thead>
     <tbody>${camps.map(cm=>{
       const dagen=getDagen().filter(d=>(d.campagneId||null)===cm.id).length;
       const isAct=cm.id===act;
+      // Zoek campver naam vanuit WV's of vrijwilligers
+      let campverNaam = '—';
+      if (cm.campver_id) {
+        const wv = getWVs().find(w => w.id === cm.campver_id);
+        const vw = !wv && getVrijw().find(v => v.id === cm.campver_id);
+        const p = wv || vw;
+        if (p) campverNaam = `<strong>${(p.roepnaam||p.voornaam||'').trim()} ${p.naam||''}</strong>`;
+      }
       return `<tr style="${isAct?'background:#eef5fc;':''}">
         <td><strong>${cm.naam}</strong>${isAct?' <span class="badge badge-blue">actief</span>':''}</td>
-        <td style="font-size:12px;color:#666;max-width:280px;">${(cm.notitie||'').slice(0,120)||'—'}</td>
+        <td style="font-size:12px;">${campverNaam}</td>
+        <td style="font-size:12px;color:#666;max-width:220px;">${(cm.notitie||'').slice(0,80)||'—'}</td>
         <td><span class="badge badge-gray">${dagen}</span></td>
         <td>${isAct?'<span style="color:#2e7d32;font-size:12px;">in gebruik</span>':`<button class="btn-sm btn-edit" onclick="wisselCampagne('${cm.id}')">Activeren</button>`}</td>
         <td><div class="actions">
@@ -3648,185 +3671,92 @@ function conflictToepassen(){
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// CAMPAGNE-VERGELIJKING (NIEUW)
+// CAMPAGNE-VERGELIJKING
 // ═══════════════════════════════════════════════════════════════════
-
 function getCampagneStats(campagneId, wijkFilter) {
   const status = ls('vf_status_' + campagneId, {});
   const straten = wijkFilter ? STREETS.filter(s => STREET_TO_WIJK[s] === wijkFilter) : STREETS;
-  let done = 0, bezig = 0, notdone = 0, skip = 0;
+  let done=0, bezig=0, notdone=0, skip=0;
   straten.forEach(s => {
-    const st = (status[s] || {}).status || 'notdone';
-    if (st === 'done') done++;
-    else if (st === 'bezig') bezig++;
-    else if (st === 'skip') skip++;
-    else notdone++;
+    const st=(status[s]||{}).status||'notdone';
+    if(st==='done') done++; else if(st==='bezig') bezig++; else if(st==='skip') skip++; else notdone++;
   });
-  const totaal = straten.length;
-  return { totaal, done, bezig, notdone, skip,
-    pctDone: totaal ? Math.round(done / totaal * 100) : 0 };
+  const totaal=straten.length;
+  return {totaal,done,bezig,notdone,skip,pctDone:totaal?Math.round(done/totaal*100):0};
 }
-
 function getCampagneWijkStats(campagneId) {
-  const status = ls('vf_status_' + campagneId, {});
-  const result = {};
-  ALL_WIJKEN.forEach(wijk => {
-    const straten = STREETS.filter(s => STREET_TO_WIJK[s] === wijk);
-    let done = 0, bezig = 0, notdone = 0, skip = 0;
-    straten.forEach(s => {
-      const st = (status[s] || {}).status || 'notdone';
-      if (st === 'done') done++;
-      else if (st === 'bezig') bezig++;
-      else if (st === 'skip') skip++;
-      else notdone++;
-    });
-    result[wijk] = { totaal: straten.length, done, bezig, notdone, skip,
-      pctDone: straten.length ? Math.round(done / straten.length * 100) : 0 };
+  const status=ls('vf_status_'+campagneId,{});
+  const result={};
+  ALL_WIJKEN.forEach(wijk=>{
+    const straten=STREETS.filter(s=>STREET_TO_WIJK[s]===wijk);
+    let done=0,bezig=0,notdone=0,skip=0;
+    straten.forEach(s=>{const st=(status[s]||{}).status||'notdone'; if(st==='done')done++; else if(st==='bezig')bezig++; else if(st==='skip')skip++; else notdone++;});
+    result[wijk]={totaal:straten.length,done,bezig,notdone,skip,pctDone:straten.length?Math.round(done/straten.length*100):0};
   });
   return result;
 }
-
 function renderVergelijking() {
-  const campagnes = getCampagnes();
-  if (!campagnes.length) {
-    document.getElementById('verg-totaal-container').innerHTML =
-      '<p style="color:#999;">Nog geen campagnes aangemaakt.</p>';
-    return;
-  }
-
-  // Wijk-filter dropdown vullen
-  const wf = document.getElementById('verg-filter-wijk');
-  if (wf && wf.options.length <= 1) {
-    ALL_WIJKEN.forEach(w => {
-      const o = document.createElement('option'); o.value = w; o.textContent = w; wf.appendChild(o);
-    });
-  }
-  const wijkFilter = document.getElementById('verg-filter-wijk')?.value || '';
-
-  // ── TOTAAL-TABEL ──
-  const totaalRows = campagnes.map(camp => {
-    const s = getCampagneStats(camp.id, wijkFilter);
-    const bar = `<div style="background:#e9ecef;border-radius:4px;height:10px;width:100%;min-width:80px;">
-      <div style="background:#28a745;width:${s.pctDone}%;height:10px;border-radius:4px;"></div></div>`;
-    return `<tr>
-      <td><strong>${camp.naam}</strong>${camp.id === getActiveCampagneId() ? ' <span class="badge badge-blue">actief</span>' : ''}</td>
-      <td style="text-align:center;">${s.totaal}</td>
-      <td style="text-align:center;color:#28a745;font-weight:600;">${s.done}</td>
-      <td style="text-align:center;color:#ffc107;font-weight:600;">${s.bezig}</td>
-      <td style="text-align:center;color:#dc3545;">${s.notdone}</td>
-      <td style="text-align:center;color:#9ca3af;">${s.skip}</td>
-      <td style="min-width:120px;">${bar}</td>
-      <td style="text-align:center;font-weight:700;color:${s.pctDone>=80?'#28a745':s.pctDone>=50?'#ffc107':'#dc3545'};">${s.pctDone}%</td>
-    </tr>`;
+  const campagnes=getCampagnes();
+  if(!campagnes.length){document.getElementById('verg-totaal-container').innerHTML='<p style="color:#999;">Nog geen campagnes.</p>';return;}
+  const wf=document.getElementById('verg-filter-wijk');
+  if(wf&&wf.options.length<=1) ALL_WIJKEN.forEach(w=>{const o=document.createElement('option');o.value=w;o.textContent=w;wf.appendChild(o);});
+  const wijkFilter=document.getElementById('verg-filter-wijk')?.value||'';
+  const totaalRows=campagnes.map(camp=>{
+    const s=getCampagneStats(camp.id,wijkFilter);
+    const bar=`<div style="background:#e9ecef;border-radius:4px;height:10px;width:100%;min-width:80px;"><div style="background:#28a745;width:${s.pctDone}%;height:10px;border-radius:4px;"></div></div>`;
+    let cvNaam='—';
+    if(camp.campver_id){const wv=getWVs().find(w=>w.id===camp.campver_id)||getVrijw().find(v=>v.id===camp.campver_id);if(wv)cvNaam=(wv.roepnaam||wv.voornaam||'').trim()+' '+wv.naam;}
+    return `<tr><td><strong>${camp.naam}</strong>${camp.id===getActiveCampagneId()?' <span class="badge badge-blue">actief</span>':''}<br><small style="color:#888;">${cvNaam}</small></td><td style="text-align:center;">${s.totaal}</td><td style="text-align:center;color:#28a745;font-weight:600;">${s.done}</td><td style="text-align:center;color:#ffc107;font-weight:600;">${s.bezig}</td><td style="text-align:center;color:#dc3545;">${s.notdone}</td><td style="text-align:center;color:#9ca3af;">${s.skip}</td><td style="min-width:100px;">${bar}</td><td style="text-align:center;font-weight:700;color:${s.pctDone>=80?'#28a745':s.pctDone>=50?'#e67e00':'#dc3545'};">${s.pctDone}%</td></tr>`;
   }).join('');
-
-  document.getElementById('verg-totaal-container').innerHTML = `
-    <h3 style="font-size:14px;font-weight:700;color:#2C5F8D;margin-bottom:8px;">
-      📋 Overzicht${wijkFilter ? ' — ' + wijkFilter : ' — alle wijken'}
-    </h3>
-    <div style="overflow-x:auto;">
-    <table class="data-table" style="width:100%;">
-      <thead><tr>
-        <th>Campagne</th>
-        <th style="text-align:center;">Totaal</th>
-        <th style="text-align:center;color:#28a745;">✅ Bedeeld</th>
-        <th style="text-align:center;color:#ffc107;">🔄 Bezig</th>
-        <th style="text-align:center;color:#dc3545;">⬜ Te doen</th>
-        <th style="text-align:center;color:#9ca3af;">⏭ Skip</th>
-        <th>Voortgang</th>
-        <th style="text-align:center;">%</th>
-      </tr></thead>
-      <tbody>${totaalRows}</tbody>
-    </table></div>`;
-
-  // ── WIJK-DETAIL (enkel als geen wijk-filter actief) ──
-  const wijkC = document.getElementById('verg-wijk-container');
-  if (wijkFilter) { wijkC.innerHTML = ''; return; }
-
-  const wijkStats = campagnes.map(c => ({ naam: c.naam, id: c.id, stats: getCampagneWijkStats(c.id) }));
-
-  const wijkRows = ALL_WIJKEN.map(wijk => {
-    const cellen = wijkStats.map(c => {
-      const s = c.stats[wijk];
-      return `<td style="text-align:center;color:#28a745;font-weight:600;">${s.done}</td>
-              <td style="text-align:center;color:#dc3545;">${s.notdone}</td>
-              <td style="text-align:center;font-weight:700;color:${s.pctDone>=80?'#28a745':s.pctDone>=50?'#e67e00':'#dc3545'};">${s.pctDone}%</td>`;
-    }).join('');
-    const totaalStraten = STREETS.filter(s => STREET_TO_WIJK[s] === wijk).length;
+  document.getElementById('verg-totaal-container').innerHTML=`<h3 style="font-size:14px;font-weight:700;color:#2C5F8D;margin-bottom:8px;">Overzicht${wijkFilter?' — '+wijkFilter:' — alle wijken'}</h3><div style="overflow-x:auto;"><table class="data-table" style="width:100%;"><thead><tr><th>Campagne</th><th style="text-align:center;">Totaal</th><th style="text-align:center;color:#28a745;">✅ Bedeeld</th><th style="text-align:center;color:#ffc107;">🔄 Bezig</th><th style="text-align:center;color:#dc3545;">⬜ Te doen</th><th style="text-align:center;color:#9ca3af;">⏭ Skip</th><th>Voortgang</th><th style="text-align:center;">%</th></tr></thead><tbody>${totaalRows}</tbody></table></div>`;
+  const wijkC=document.getElementById('verg-wijk-container');
+  if(wijkFilter){wijkC.innerHTML='';return;}
+  const wijkStats=campagnes.map(c=>({naam:c.naam,id:c.id,stats:getCampagneWijkStats(c.id)}));
+  const wijkRows=ALL_WIJKEN.map(wijk=>{
+    const totaalStraten=STREETS.filter(s=>STREET_TO_WIJK[s]===wijk).length;
+    const cellen=wijkStats.map(c=>{const s=c.stats[wijk];return `<td style="text-align:center;color:#28a745;font-weight:600;">${s.done}</td><td style="text-align:center;color:#dc3545;">${s.notdone}</td><td style="text-align:center;font-weight:700;color:${s.pctDone>=80?'#28a745':s.pctDone>=50?'#e67e00':'#dc3545'};">${s.pctDone}%</td>`;}).join('');
     return `<tr><td style="font-weight:600;">${wijk}</td><td style="text-align:center;color:#666;">${totaalStraten}</td>${cellen}</tr>`;
   }).join('');
-
-  const headerCellen = wijkStats.map(c =>
-    `<th colspan="3" style="text-align:center;border-left:2px solid #dee2e6;">${c.naam}</th>`
-  ).join('');
-  const subHeader = wijkStats.map(() =>
-    `<th style="text-align:center;color:#28a745;font-size:11px;">✅</th>
-     <th style="text-align:center;color:#dc3545;font-size:11px;">⬜</th>
-     <th style="text-align:center;font-size:11px;">%</th>`
-  ).join('');
-
-  wijkC.innerHTML = `
-    <h3 style="font-size:14px;font-weight:700;color:#2C5F8D;margin-bottom:8px;">🏘️ Detail per wijk</h3>
-    <div style="overflow-x:auto;">
-    <table class="data-table" style="width:100%;">
-      <thead>
-        <tr><th rowspan="2">Wijk</th><th rowspan="2" style="text-align:center;">Straten</th>${headerCellen}</tr>
-        <tr>${subHeader}</tr>
-      </thead>
-      <tbody>${wijkRows}</tbody>
-    </table></div>`;
+  const headerCellen=wijkStats.map(c=>`<th colspan="3" style="text-align:center;border-left:2px solid #dee2e6;">${c.naam}</th>`).join('');
+  const subHeader=wijkStats.map(()=>`<th style="text-align:center;color:#28a745;font-size:11px;">✅</th><th style="text-align:center;color:#dc3545;font-size:11px;">⬜</th><th style="text-align:center;font-size:11px;">%</th>`).join('');
+  wijkC.innerHTML=`<h3 style="font-size:14px;font-weight:700;color:#2C5F8D;margin-bottom:8px;">Detail per wijk</h3><div style="overflow-x:auto;"><table class="data-table" style="width:100%;"><thead><tr><th rowspan="2">Wijk</th><th rowspan="2" style="text-align:center;">Straten</th>${headerCellen}</tr><tr>${subHeader}</tr></thead><tbody>${wijkRows}</tbody></table></div>`;
 }
-
 function exportVergelijkingExcel() {
-  const campagnes = getCampagnes();
-  if (!campagnes.length) { showToast('Geen campagnes', true); return; }
-
-  const wb = XLSX.utils.book_new();
-
-  // Blad 1: Totaaloverzicht
-  const totaalRows = [['Campagne', 'Totaal straten', 'Bedeeld', 'Bezig', 'Nog te doen', 'Overgeslagen', '% Bedeeld']];
-  campagnes.forEach(camp => {
-    const s = getCampagneStats(camp.id, '');
-    totaalRows.push([camp.naam, s.totaal, s.done, s.bezig, s.notdone, s.skip, s.pctDone + '%']);
+  const campagnes=getCampagnes();
+  if(!campagnes.length){showToast('Geen campagnes',true);return;}
+  const wb=XLSX.utils.book_new();
+  const totaalRows=[['Campagne','Campagneverantwoordelijke','Totaal','Bedeeld','Bezig','Nog te doen','Skip','% Bedeeld']];
+  campagnes.forEach(camp=>{
+    const s=getCampagneStats(camp.id,'');
+    let cvNaam='—';
+    if(camp.campver_id){const p=getWVs().find(w=>w.id===camp.campver_id)||getVrijw().find(v=>v.id===camp.campver_id);if(p)cvNaam=(p.roepnaam||p.voornaam||'').trim()+' '+p.naam;}
+    totaalRows.push([camp.naam,cvNaam,s.totaal,s.done,s.bezig,s.notdone,s.skip,s.pctDone+'%']);
   });
-  const ws1 = XLSX.utils.aoa_to_sheet(totaalRows);
-  ws1['!cols'] = [{wch:24},{wch:14},{wch:10},{wch:8},{wch:12},{wch:12},{wch:10}];
-  XLSX.utils.book_append_sheet(wb, ws1, 'Overzicht');
-
-  // Blad 2: Per wijk
-  const wijkHeader = ['Wijk', 'Straten'];
-  campagnes.forEach(c => { wijkHeader.push(c.naam + ' ✅', c.naam + ' ⬜', c.naam + ' %'); });
-  const wijkRows = [wijkHeader];
-  const wijkStats = campagnes.map(c => getCampagneWijkStats(c.id));
-  ALL_WIJKEN.forEach(wijk => {
-    const totaalStraten = STREETS.filter(s => STREET_TO_WIJK[s] === wijk).length;
-    const rij = [wijk, totaalStraten];
-    wijkStats.forEach(stats => {
-      const s = stats[wijk];
-      rij.push(s.done, s.notdone, s.pctDone + '%');
-    });
+  const ws1=XLSX.utils.aoa_to_sheet(totaalRows);
+  ws1['!cols']=[{wch:24},{wch:20},{wch:8},{wch:10},{wch:8},{wch:12},{wch:8},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Overzicht');
+  const wijkHeader=['Wijk','Straten'];
+  campagnes.forEach(c=>{wijkHeader.push(c.naam+' ✅',c.naam+' ⬜',c.naam+' %');});
+  const wijkRows=[wijkHeader];
+  const wijkStats=campagnes.map(c=>getCampagneWijkStats(c.id));
+  ALL_WIJKEN.forEach(wijk=>{
+    const totaalStraten=STREETS.filter(s=>STREET_TO_WIJK[s]===wijk).length;
+    const rij=[wijk,totaalStraten];
+    wijkStats.forEach(stats=>{const s=stats[wijk];rij.push(s.done,s.notdone,s.pctDone+'%');});
     wijkRows.push(rij);
   });
-  const ws2 = XLSX.utils.aoa_to_sheet(wijkRows);
-  ws2['!cols'] = [{wch:24}, {wch:8}, ...campagnes.flatMap(() => [{wch:12},{wch:10},{wch:8}])];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Per wijk');
-
-  // Blad per campagne: detail alle straten
-  campagnes.forEach(camp => {
-    const status = ls('vf_status_' + camp.id, {});
-    const labels = { done:'Bedeeld', bezig:'Bezig', notdone:'Nog te doen', skip:'Overgeslagen' };
-    const rows = [['Straat','Wijk','Status','Datum','Opmerking']];
-    STREETS.forEach(s => {
-      const info = status[s] || {};
-      rows.push([s, STREET_TO_WIJK[s]||'', labels[info.status||'notdone']||'', info.datum||'', info.opmerking||'']);
-    });
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{wch:28},{wch:20},{wch:14},{wch:12},{wch:28}];
-    // Naam max 31 tekens (Excel-limiet)
-    XLSX.utils.book_append_sheet(wb, ws, camp.naam.slice(0,31));
+  const ws2=XLSX.utils.aoa_to_sheet(wijkRows);
+  XLSX.utils.book_append_sheet(wb,ws2,'Per wijk');
+  campagnes.forEach(camp=>{
+    const status=ls('vf_status_'+camp.id,{});
+    const labels={done:'Bedeeld',bezig:'Bezig',notdone:'Nog te doen',skip:'Overgeslagen'};
+    const rows=[['Straat','Wijk','Status','Datum','Opmerking']];
+    STREETS.forEach(s=>{const info=status[s]||{};rows.push([s,STREET_TO_WIJK[s]||'',labels[info.status||'notdone']||'',info.datum||'',info.opmerking||'']);});
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:28},{wch:20},{wch:14},{wch:12},{wch:28}];
+    XLSX.utils.book_append_sheet(wb,ws,camp.naam.slice(0,31));
   });
-
-  XLSX.writeFile(wb, `campagne-vergelijking-${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb,`campagne-vergelijking-${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast('Vergelijking geëxporteerd ✓');
 }
 
