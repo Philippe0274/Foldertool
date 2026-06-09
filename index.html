@@ -3964,12 +3964,21 @@ function renderStratenTabel(){
   </tr></thead><tbody>${lijst.map(s=>{
     const info=all[s]||{}; const st=info.status||'notdone';
     const _stLbl={done:'✅ Bedeeld',bezig:'🔄 Bezig',notdone:'⬜ Te doen',skip:'⏭ Skip'};
+    let statusCel;
+    if(isAdmin()){
+      const sEsc=s.replace(/'/g,"\\'");
+      statusCel='<select class="status-select '+st+'" onchange="wijzigStraatStatus(\''+sEsc+'\',this.value)">'+
+        '<option value="notdone"'+(st==='notdone'?' selected':'')+'>Nog te doen</option>'+
+        '<option value="bezig"'+(st==='bezig'?' selected':'')+'>Bezig</option>'+
+        '<option value="done"'+(st==='done'?' selected':'')+'>Bedeeld</option>'+
+        '</select>';
+    } else {
+      statusCel='<span class="status-badge '+st+'">'+(_stLbl[st]||st)+'</span>';
+    }
     return `<tr>
       <td class="st-naam">${s}</td>
       <td class="st-wijk">${STREET_TO_WIJK[s]||'—'}</td>
-      <td>${isAdmin()
-        ? \`<select class="status-select \${st}" onchange="wijzigStraatStatus('\${s.replace(/'/g,"\\\\'")}',this.value)"><option value="notdone"\${st==='notdone'?' selected':''}>Nog te doen</option><option value="bezig"\${st==='bezig'?' selected':''}>Bezig</option><option value="done"\${st==='done'?' selected':''}>Bedeeld</option></select>\`
-        : \`<span class="status-badge \${st}">\${_stLbl[st]||st}</span>\`}</td>
+      <td>${statusCel}</td>
       ${toonBussen?`<td style="font-size:13px;color:#185FA5;font-weight:500;">${bussenVoorStraat(s)||'—'}</td>`:''}
       <td style="color:#999;font-size:12px;">${info.datum?info.datum+(info.bron?' ('+info.bron+')':''):'—'}</td>
     </tr>`;
