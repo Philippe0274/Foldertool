@@ -1320,6 +1320,16 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
         <span id="vw-filter-aantal" style="font-size:12px;color:#666;"></span>
         <button class="btn-sm btn-danger" onclick="verwijderGefilterdeVrijw()" title="Verwijder alle vrijwilligers die nu in de lijst staan (na filter)">🗑️ Verwijder selectie</button>
       </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 16px;border-bottom:1px solid #eee;background:#f3f7fb;">
+        <span style="font-size:12px;font-weight:600;color:#2C5F8D;">Aangevinkt → oorsprong:</span>
+        <select id="vw-bulk-bron" style="padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;">
+          <option value="manueel">Manueel / Manuellement</option>
+          <option value="excel_algemeen">Excel Algemeen / Général</option>
+          <option value="excel_ansje">Excel Ansje</option>
+        </select>
+        <button class="btn-sm btn-edit" onclick="pasOorsprongToeOpSelectie()" title="Pas de gekozen oorsprong toe op alle aangevinkte vrijwilligers">✔️ Toepassen op aangevinkte</button>
+        <span id="vw-sel-aantal" style="font-size:12px;color:#666;font-weight:600;"></span>
+      </div>
       <div class="card-body" style="padding:0;">
         <div id="vrijw-tabel-container">
           <div class="empty-table">Nog geen vrijwilligers toegevoegd.</div>
@@ -1541,6 +1551,30 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modal-bulk')">Annuleren</button>
       <button class="btn-primary" id="bulk-import-btn" onclick="doBulkImport()" disabled>📥 Importeren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import-bevestiging vrijwilligers -->
+<div class="modal-overlay" id="modal-vw-import">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3>📥 Vrijwilligers importeren</h3>
+      <button class="modal-close" onclick="closeModal('modal-vw-import')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="vw-import-info" style="font-size:14px;color:#555;margin-bottom:14px;"></p>
+      <label style="font-size:13px;font-weight:600;color:#333;display:block;margin-bottom:6px;">Oorsprong / Source van deze lijst</label>
+      <select id="vw-import-bron-modal" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;font-size:14px;">
+        <option value="manueel">Manueel / Manuellement</option>
+        <option value="excel_algemeen">Excel Algemeen / Fichier Excel Général</option>
+        <option value="excel_ansje">Excel Ansje / Fichier Excel Ansje</option>
+      </select>
+      <p style="font-size:12px;color:#888;margin-top:10px;">Controleer de oorsprong goed — alle personen uit dit bestand krijgen deze waarde.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-vw-import')">Annuleren</button>
+      <button class="btn-primary" onclick="bevestigVrijwImport()">📥 Importeren</button>
     </div>
   </div>
 </div>
@@ -2940,17 +2974,37 @@ function downloadVrijwSjabloon(){
   XLSX.writeFile(wb,'sjabloon_vrijwilligers.xlsx');
 }
 
+// ── Vrijwilligers importeren via Excel (met bevestiging vooraf) ──
+let _vwImportRows = null;   // tijdelijk: ingelezen rijen wachtend op bevestiging
+
 async function importVrijwExcel(input){
   const file=input.files[0]; input.value='';
   if(!file) return;
-  const bron=(document.getElementById('vw-import-bron')||{}).value||'excel_algemeen';
   try{
-    showLoader('Vrijwilligers importeren...');
+    showLoader('Bestand inlezen...');
     const buf=await file.arrayBuffer();
     const wb=XLSX.read(buf);
     const ws=wb.Sheets[wb.SheetNames[0]];
     const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
-    if(rows.length<2){ hideLoader(); showToast('Geen rijen gevonden in het bestand.',true); return; }
+    hideLoader();
+    if(rows.length<2){ showToast('Geen rijen gevonden in het bestand.',true); return; }
+    _vwImportRows = rows;
+    // Voorstel-oorsprong = wat in de werkbalk-dropdown staat
+    const voorstel=(document.getElementById('vw-import-bron')||{}).value||'excel_algemeen';
+    document.getElementById('vw-import-bron-modal').value=voorstel;
+    document.getElementById('vw-import-info').innerHTML=
+      '<strong>'+(rows.length-1)+'</strong> rijen gevonden in <em>'+file.name+'</em>.<br>Controleer de oorsprong hieronder vóór je importeert.';
+    openModal('modal-vw-import');
+  }catch(e){ hideLoader(); showToast('Inlezen mislukt: '+e.message,true); }
+}
+
+function bevestigVrijwImport(){
+  const rows=_vwImportRows;
+  if(!rows){ closeModal('modal-vw-import'); return; }
+  const bron=(document.getElementById('vw-import-bron-modal')||{}).value||'excel_algemeen';
+  closeModal('modal-vw-import');
+  showLoader('Vrijwilligers importeren...');
+  try{
     const headers=(rows[0]||[]).map(h=>String(h||'').toLowerCase().trim());
     const gebruikt=[];
     const vind=(...namen)=>{
@@ -2973,7 +3027,6 @@ async function importVrijwExcel(input){
       const row=rows[r]||[];
       const cel=i=>i>=0?String(row[i]??'').trim():'';
       let voor=cel(iVoor), naam=cel(iNaam);
-      // Als er maar één naamkolom is, splitsen op spatie
       if(!voor && naam && iVoor<0){ const p=naam.split(' '); voor=p.shift(); naam=p.join(' '); }
       if(!voor && !naam) continue;
       const sleutel=(voor+'|'+naam).toLowerCase().trim();
@@ -2985,6 +3038,7 @@ async function importVrijwExcel(input){
       toegevoegd++;
     }
     saveVrijwData(list);
+    _vwImportRows=null;
     renderVrijwTabel(); updateKaartFilters();
     hideLoader();
     showToast(`${toegevoegd} toegevoegd${overgeslagen?', '+overgeslagen+' al aanwezig (overgeslagen)':''} ✓`);
@@ -3066,6 +3120,29 @@ function verwijderGefilterdeVrijw(){
   showToast(sel.length+' vrijwilliger(s) verwijderd');
 }
 
+// ── Selectie van vrijwilligers (vinkjes) voor bulk-oorsprong ──
+let vwGeselecteerd = new Set();
+function vwToggleSelectie(id, aan){ if(aan) vwGeselecteerd.add(id); else vwGeselecteerd.delete(id); _vwUpdateSelTeller(); }
+function vwSelecteerAlleGetoond(aan){
+  gefilterdeVrijw().forEach(v=>{ if(aan) vwGeselecteerd.add(v.id); else vwGeselecteerd.delete(v.id); });
+  renderVrijwTabel();
+}
+function _vwUpdateSelTeller(){
+  const el=document.getElementById('vw-sel-aantal');
+  if(el) el.textContent = vwGeselecteerd.size ? (vwGeselecteerd.size+' aangevinkt') : '';
+}
+function pasOorsprongToeOpSelectie(){
+  if(!vwGeselecteerd.size){ showToast('Vink eerst één of meer vrijwilligers aan.',true); return; }
+  const bron=(document.getElementById('vw-bulk-bron')||{}).value||'manueel';
+  if(!confirm(vwGeselecteerd.size+' vrijwilliger(s) wijzigen naar oorsprong "'+vwBronLabel(bron)+'"?')) return;
+  const list=getVrijw();
+  list.forEach(v=>{ if(vwGeselecteerd.has(v.id)) v.bron=bron; });
+  saveVrijwData(list);
+  vwGeselecteerd.clear();
+  renderVrijwTabel();
+  showToast('Oorsprong aangepast ✓');
+}
+
 function renderVrijwTabel(){
   const list=gefilterdeVrijw();
   const c=document.getElementById('vrijw-tabel-container');
@@ -3074,8 +3151,9 @@ function renderVrijwTabel(){
   if(!getVrijw().length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
   if(!list.length){ c.innerHTML='<div class="empty-table">Geen vrijwilligers in deze selectie.</div>'; return; }
   c.innerHTML=`<table class="data-table">
-    <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Taal</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
+    <thead><tr><th style="width:34px;text-align:center;"><input type="checkbox" onchange="vwSelecteerAlleGetoond(this.checked)" title="Alles aan/uit" style="width:16px;height:16px;cursor:pointer;"/></th><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Taal</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
     <tbody>${list.map(v=>`<tr>
+      <td style="text-align:center;"><input type="checkbox" ${vwGeselecteerd.has(v.id)?'checked':''} onchange="vwToggleSelectie('${v.id}',this.checked)" style="width:16px;height:16px;cursor:pointer;"/></td>
       <td><strong>${v.voornaam} ${v.naam}</strong></td>
       <td>${v.roepnaam||'—'}</td>
       <td>${v.gsm?`<a href="https://wa.me/${v.gsm.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:600;">📱 ${v.gsm}</a>`:'—'}</td>
@@ -3088,6 +3166,7 @@ function renderVrijwTabel(){
         <button class="btn-sm btn-danger" onclick="deleteVrijw('${v.id}')">🗑️</button>
       </div></td>
     </tr>`).join('')}</tbody></table>`;
+  _vwUpdateSelTeller();
   vertaalAlsFR();
 }
 
