@@ -1,37 +1,39 @@
-const CACHE = 'folderkaart-v1';
-const ASSETS = ['./', './index.html', './manifest.json'];
+// Folderkaart service worker — ZELFHELEND: wist oude cache en herlaadt automatisch
+const CACHE = 'folderkaart-v4';
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
+  self.skipWaiting(); // nieuwe versie meteen activeren, geen wachten
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    const hadOld = keys.some(k => k !== CACHE); // was er een oude versie?
+    await Promise.all(keys.map(k => caches.delete(k))); // wis ALLES
+    await self.clients.claim();
+    // Als er een oude (kapotte) versie gecached stond: herlaad alle open vensters
+    if (hadOld) {
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach(c => { try { c.navigate(c.url); } catch (_) {} });
+    }
+  })());
 });
 
 self.addEventListener('fetch', e => {
-  // Netwerk eerst voor API calls, cache voor rest
-  if (e.request.url.includes('googleapis.com') ||
-      e.request.url.includes('overpass') ||
-      e.request.url.includes('openstreetmap') ||
-      e.request.url.includes('corsproxy')) {
-    return; // laat netwerk-verzoeken passeren
-  }
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  // Netwerk-eerst: altijd verse versie, val alleen offline terug op cache
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(resp => {
-        if (resp.ok) {
-          caches.open(CACHE).then(c => c.put(e.request, resp.clone()));
-        }
+    fetch(req)
+      .then(resp => {
+        try {
+          if (resp.ok && new URL(req.url).origin === self.location.origin) {
+            const clone = resp.clone();
+            caches.open(CACHE).then(c => c.put(req, clone));
+          }
+        } catch (_) {}
         return resp;
-      }).catch(() => cached);
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(req))
   );
 });

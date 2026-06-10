@@ -908,8 +908,88 @@ header.app-header::after {
   .form-grid { grid-template-columns:1fr; }
 }
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2C5F8D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Folderkaart">
+<style>
+/* ── GEBRUIKER-MODE: alles met .admin-only verbergen ── */
+body.gebruiker-mode .admin-only { display:none !important; }
+body.gebruiker-mode .status-select { pointer-events:none; opacity:.85; }
+
+/* ── STARTUP SCREEN ── */
+#startup-screen {
+  position:fixed; inset:0; background:linear-gradient(135deg,#1a3a5c 0%,#2C5F8D 100%);
+  display:flex; align-items:center; justify-content:center; z-index:9999;
+}
+#startup-screen .startup-card {
+  background:#fff; border-radius:16px; padding:36px 32px; max-width:380px; width:92%;
+  box-shadow:0 8px 40px rgba(0,0,0,.3); text-align:center;
+}
+#startup-screen h1 { font-size:22px; font-weight:700; color:#2C5F8D; margin:12px 0 6px; }
+#startup-screen p  { font-size:13px; color:#666; margin-bottom:24px; }
+#startup-screen input {
+  width:100%; padding:10px 14px; border:2px solid #dde3ea; border-radius:8px;
+  font-size:15px; margin-bottom:14px; box-sizing:border-box; text-align:center;
+  letter-spacing:4px;
+}
+#startup-screen input:focus { border-color:#2C5F8D; outline:none; }
+#startup-screen input.fout { border-color:#dc3545; animation:shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.startup-btns { display:flex; gap:10px; }
+.startup-btns button {
+  flex:1; padding:12px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none;
+}
+.btn-kijken { background:#f0f4f8; color:#555; }
+.btn-admin  { background:#2C5F8D; color:#fff; }
+
+/* ── GEBRUIKER BADGE (ipv status-select) ── */
+.status-badge { display:inline-block; padding:3px 10px; border-radius:99px; font-size:12px; font-weight:600; }
+.status-badge.done    { background:#e3f5e3; color:#2e7d32; }
+.status-badge.bezig   { background:#fff4d6; color:#946c00; }
+.status-badge.notdone { background:#fde8e8; color:#c0392b; }
+.status-badge.skip    { background:#f0f0f0; color:#777; }
+
+/* ── GEBRUIKER HEADER BAR ── */
+#gebruiker-bar {
+  display:none; background:#1a3a5c; color:#fff; padding:6px 16px;
+  font-size:12px; text-align:center; align-items:center; justify-content:space-between;
+}
+body.gebruiker-mode #gebruiker-bar { display:flex; }
+/* ── VAST APP-LOGO (wisselt per modus) ── */
+#app-logo {
+  position:fixed; top:8px; right:10px; width:54px; height:54px;
+  border-radius:50%; z-index:500; object-fit:cover;
+  box-shadow:0 2px 8px rgba(0,0,0,.25); background:#fff;
+  pointer-events:none;
+}
+body.gebruiker-mode #app-logo { top:34px; }
+@media (max-width:600px){ #app-logo { width:44px; height:44px; } }
+</style>
 </head>
 <body>
+
+<!-- STARTUP SCREEN -->
+<div id="startup-screen">
+  <div class="startup-card">
+    <div style="font-size:52px;">🗺️</div>
+    <h1>Vilvoorde Folderkaart</h1>
+    <p>Geef het beheerderswachtwoord in, of klik op <strong>Kijken</strong> voor de kijkersmodus.</p>
+    <input type="password" id="startup-pwd" placeholder="• • • •"
+           onkeydown="if(event.key==='Enter')checkAdminMode()">
+    <div class="startup-btns">
+      <button class="btn-kijken" onclick="setModus('gebruiker')">👁️ Kijken</button>
+      <button class="btn-admin"  onclick="checkAdminMode()">🔐 Aanmelden</button>
+    </div>
+  </div>
+</div>
+
+<!-- GEBRUIKER INFO BAR -->
+<div id="gebruiker-bar">
+  <span>👁️ Kijkersmodus — alleen raadplegen</span>
+  <span id="gebruiker-sync-info" style="font-size:11px;color:#aac8e8;"></span>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════ HEADER -->
 <header class="app-header">
@@ -941,6 +1021,7 @@ header.app-header::after {
 </header>
 
 <!-- ═══════════════════════════════════════════════════════════ MAIN TABS -->
+<img id="app-logo" src="logo-kijk.png" alt="PVDA Folderkaart" />
 <nav class="main-tabs">
   <button class="main-tab" data-tab="campagne">🎯 Campagne</button>
   <button class="main-tab active" data-tab="kaart">🗺️ Kaart</button>
@@ -951,6 +1032,7 @@ header.app-header::after {
   <button class="main-tab" data-tab="vergelijking">📊 Vergelijking</button>
   <button class="main-tab" id="taal-knop" onclick="toggleTaal()" style="margin-left:auto;color:#185FA5;font-weight:600;" title="Changer de langue / Taal wisselen">🇫🇷 FR</button>
   <button class="main-tab" onclick="openModal('modal-uitleg')" style="color:#185FA5;">❓ Uitleg</button>
+  <button class="main-tab admin-only" onclick="afmeldenAdmin()" style="color:#dc3545;font-size:11px;" title="Afmelden als beheerder">🔓</button>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════════════ KAART TAB -->
@@ -1130,9 +1212,11 @@ header.app-header::after {
         <p class="page-desc">Pool van alle vrijwilligers die ooit meededen. Per bedeeldag selecteer je wie er die dag aanwezig is.</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-sm btn-edit" onclick="exportBackup()" title="Bewaar alle gegevens in een bestand">📥 Back-up maken</button>
-        <button class="btn-sm btn-edit" onclick="document.getElementById('backup-import-file').click()" title="Herstel gegevens uit een back-upbestand">📤 Back-up herstellen</button>
+        <button class="btn-sm btn-edit" class="admin-only" onclick="exportBackup()" title="Bewaar alle gegevens in een bestand">📥 Back-up maken</button>
+        <button class="btn-sm btn-edit" class="admin-only" onclick="document.getElementById('backup-import-file').click()" title="Herstel gegevens uit een back-upbestand">📤 Back-up herstellen</button>
         <input type="file" id="backup-import-file" accept=".json" style="display:none;" onchange="importBackup(this)"/>
+        <button class="btn-sm btn-edit" class="admin-only" onclick="syncNaarDrive()" title="Sla alle data op naar Google Drive" style="background:#e8f0fe;color:#1a73e8;border-color:#a8c7fa;">☁️ Sync to Google</button>
+        <button class="btn-sm btn-edit" class="admin-only" onclick="ladenVanDrive()" title="Laad data van Google Drive" style="background:#e8f0fe;color:#1a73e8;border-color:#a8c7fa;">☁️ Laden van Drive</button>
         <button class="btn-primary" onclick="openVrijwForm()">+ Nieuwe vrijwilliger</button>
       </div>
     </div>
@@ -1774,11 +1858,199 @@ function importBackup(input) {
   input.value = '';
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// GOOGLE DRIVE SYNC
+// ═══════════════════════════════════════════════════════════════════
+const GDRIVE_CLIENT_ID = '124744904830-2cjrcabs135rqv5qjhsm4qgat3r3r4ec.apps.googleusercontent.com';
+const GDRIVE_FILENAME  = 'folderkaart-backup.json';
+let _gdriveClient = null;
+
+function _getGDriveClient() {
+  if (!window.google?.accounts?.oauth2) {
+    showToast('Google-bibliotheek nog niet geladen — herlaad de pagina.', true);
+    return null;
+  }
+  if (!_gdriveClient) {
+    _gdriveClient = google.accounts.oauth2.initTokenClient({
+      client_id: GDRIVE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: ''
+    });
+  }
+  return _gdriveClient;
+}
+
+function _gdriveData() {
+  const statusPerCampagne = {};
+  getCampagnes().forEach(c => { statusPerCampagne[c.id] = ls('vf_status_' + c.id, {}); });
+  return { versie: 2, datum: new Date().toISOString(),
+    wv: getWVs(), vrijwilligers: getVrijw(), bedeeldagen: getDagen(),
+    campagnes: getCampagnes(), activeCampagne: getActiveCampagneId(),
+    statusPerCampagne, addrCount };
+}
+
+function _gdriveHerstel(data) {
+  if (data.wv) saveWVs(data.wv);
+  if (data.vrijwilligers) saveVrijwData(data.vrijwilligers);
+  if (data.bedeeldagen) saveDagen(data.bedeeldagen);
+  if (data.campagnes) saveCampagnes(data.campagnes);
+  if (data.activeCampagne) setActiveCampagneId(data.activeCampagne);
+  if (data.statusPerCampagne) Object.entries(data.statusPerCampagne).forEach(([cid, st]) => lsSet('vf_status_' + cid, st));
+  if (data.addrCount) { addrCount = data.addrCount; saveAddrToStorage(); }
+  if (data.campagnes) ensureCampagne();
+  if (typeof renderCampagneTab === 'function') renderCampagneTab();
+  renderWvTabel(); renderVrijwTabel(); renderDagLijst(); updateKaartFilters(); renderStreets();
+  if (typeof renderStratenTabel === 'function') renderStratenTabel();
+}
+
+function syncNaarDrive() {
+  const client = _getGDriveClient();
+  if (!client) return;
+  showLoader('Verbinden met Google...');
+  client.callback = async (resp) => {
+    if (resp.error) { hideLoader(); showToast('Inloggen mislukt: ' + resp.error, true); return; }
+    const token = resp.access_token;
+    try {
+      showLoader('Opslaan op Google Drive...');
+      const json = JSON.stringify(_gdriveData(), null, 2);
+      // Zoek bestaand bestand
+      const sr = await (await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name%3D'${GDRIVE_FILENAME}'%20and%20trashed%3Dfalse&fields=files(id)`,
+        { headers: { Authorization: 'Bearer ' + token } }
+      )).json();
+      const fileId = sr.files?.[0]?.id;
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify({ name: GDRIVE_FILENAME, mimeType: 'application/json' })], { type: 'application/json' }));
+      form.append('file', new Blob([json], { type: 'application/json' }));
+      const url = fileId
+        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+        : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+      const method = fileId ? 'PATCH' : 'POST';
+      const r = await fetch(url, { method, headers: { Authorization: 'Bearer ' + token }, body: form });
+      if (r.ok) {
+        const res = await r.json();
+        const newId = res.id || fileId;
+        // Maak publiek zodat gebruikers kunnen laden
+        await fetch(`https://www.googleapis.com/drive/v3/files/${newId}/permissions`,{
+          method:'POST', headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+          body:JSON.stringify({role:'reader',type:'anyone'})
+        }).catch(()=>{});
+        lsSet('vf_gdrive_file_id', newId);
+        hideLoader(); showToast('☁️ Opgeslagen op Google Drive ✓');
+      } else { hideLoader(); throw new Error('HTTP ' + r.status); }
+    } catch (e) { hideLoader(); showToast('Drive fout: ' + e.message, true); }
+  };
+  client.requestAccessToken();
+}
+
+function ladenVanDrive() {
+  const client = _getGDriveClient();
+  if (!client) return;
+  showLoader('Verbinden met Google...');
+  client.callback = async (resp) => {
+    if (resp.error) { hideLoader(); showToast('Inloggen mislukt: ' + resp.error, true); return; }
+    const token = resp.access_token;
+    try {
+      showLoader('Laden van Google Drive...');
+      const sr = await (await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name%3D'${GDRIVE_FILENAME}'%20and%20trashed%3Dfalse&fields=files(id,modifiedTime)`,
+        { headers: { Authorization: 'Bearer ' + token } }
+      )).json();
+      if (!sr.files?.length) { hideLoader(); showToast('Geen back-up gevonden op Drive.', true); return; }
+      const { id, modifiedTime } = sr.files[0];
+      const dt = new Date(modifiedTime).toLocaleString('nl-BE');
+      if (!confirm(`Back-up laden van Google Drive?\n\nLaatste sync: ${dt}\n\nDit overschrijft je huidige gegevens.`)) { hideLoader(); return; }
+      const data = await (await fetch(
+        `https://www.googleapis.com/drive/v3/files/${id}?alt=media`,
+        { headers: { Authorization: 'Bearer ' + token } }
+      )).json();
+      _gdriveHerstel(data);
+      hideLoader();
+      showToast('☁️ Geladen van Google Drive ✓');
+    } catch (e) { hideLoader(); showToast('Drive fout: ' + e.message, true); }
+  };
+  client.requestAccessToken();
+}
+
 function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
 // ═══════════════════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// ADMIN / GEBRUIKER MODUS
+// ═══════════════════════════════════════════════════════════════════
+const _ADMIN_HASH = 'MDI3NHZmMjAyNA=='; // btoa('0274vf2024')
+
+function getModus()  { return ls('vf_modus', null); }
+function isAdmin()   { return getModus() === 'admin'; }
+
+function checkAdminMode() {
+  const pwd = document.getElementById('startup-pwd').value;
+  if (btoa(pwd + 'vf2024') === _ADMIN_HASH) {
+    setModus('admin');
+  } else {
+    const el = document.getElementById('startup-pwd');
+    el.classList.add('fout'); el.value = '';
+    el.placeholder = 'Fout wachtwoord…';
+    setTimeout(() => { el.classList.remove('fout'); el.placeholder = '• • • •'; }, 1800);
+  }
+}
+
+function setModus(modus) {
+  lsSet('vf_modus', modus);
+  document.getElementById('startup-screen').style.display = 'none';
+  _setLogo(modus);
+  if (modus === 'gebruiker') {
+    document.body.classList.add('gebruiker-mode');
+    _autoLoadDriveVoorGebruiker();
+  } else {
+    document.body.classList.remove('gebruiker-mode');
+  }
+}
+function _setLogo(modus) {
+  const el = document.getElementById('app-logo');
+  if (el) el.src = (modus === 'admin') ? 'logo-admin.png' : 'logo-kijk.png';
+}
+
+function afmeldenAdmin() {
+  if (!confirm('Afmelden als beheerder?')) return;
+  lsSet('vf_modus', null);
+  location.reload();
+}
+
+function initModus() {
+  const m = getModus();
+  _setLogo(m);
+  if (m === 'admin')     { document.getElementById('startup-screen').style.display = 'none'; }
+  else if (m === 'gebruiker') {
+    document.getElementById('startup-screen').style.display = 'none';
+    document.body.classList.add('gebruiker-mode');
+    _autoLoadDriveVoorGebruiker();
+  }
+  // null → startup screen blijft zichtbaar
+}
+
+// Auto-laad data van Drive voor gebruikers (als file ID beschikbaar)
+async function _autoLoadDriveVoorGebruiker() {
+  const fileId = ls('vf_gdrive_file_id', null);
+  if (!fileId) return;
+  const el = document.getElementById('gebruiker-sync-info');
+  if (el) el.textContent = 'Gegevens laden…';
+  try {
+    const url  = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    const resp = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    _gdriveHerstel(data);
+    const ts = new Date().toLocaleTimeString('nl-BE', {hour:'2-digit',minute:'2-digit'});
+    if (el) el.textContent = `Bijgewerkt om ${ts}`;
+  } catch(e) {
+    if (el) el.textContent = '⚠️ Kan gegevens niet laden';
+    console.log('Auto-load:', e.message);
+  }
+}
+
 function initTabs() {
   document.querySelectorAll('.main-tab').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3707,14 +3979,16 @@ function renderStratenTabel(){
     <th>Straat</th><th>Wijk</th><th>Status</th>${toonBussen?'<th>± bussen</th>':''}<th>Laatst gewijzigd</th>
   </tr></thead><tbody>${lijst.map(s=>{
     const info=all[s]||{}; const st=info.status||'notdone';
+    const sEsc=s.replace(/'/g,"\\'");
+    const statusCel='<select class="status-select '+st+'" onchange="wijzigStraatStatus(\''+sEsc+'\',this.value)">'+
+        '<option value="notdone"'+(st==='notdone'?' selected':'')+'>Nog te doen</option>'+
+        '<option value="bezig"'+(st==='bezig'?' selected':'')+'>Bezig</option>'+
+        '<option value="done"'+(st==='done'?' selected':'')+'>Bedeeld</option>'+
+        '</select>';
     return `<tr>
       <td class="st-naam">${s}</td>
       <td class="st-wijk">${STREET_TO_WIJK[s]||'—'}</td>
-      <td><select class="status-select ${st}" onchange="wijzigStraatStatus('${s.replace(/'/g,"\\'")}',this.value)">
-        <option value="notdone"${st==='notdone'?' selected':''}>Nog te doen</option>
-        <option value="bezig"${st==='bezig'?' selected':''}>Bezig</option>
-        <option value="done"${st==='done'?' selected':''}>Bedeeld</option>
-      </select></td>
+      <td>${statusCel}</td>
       ${toonBussen?`<td style="font-size:13px;color:#185FA5;font-weight:500;">${bussenVoorStraat(s)||'—'}</td>`:''}
       <td style="color:#999;font-size:12px;">${info.datum?info.datum+(info.bron?' ('+info.bron+')':''):'—'}</td>
     </tr>`;
@@ -3964,6 +4238,17 @@ function exportStatusExcel(){
   // Elke init-stap apart — een fout in één stap blokkeert de rest niet
   const safe = (fn, naam) => { try { fn(); } catch(e) { console.error('Init fout in ' + naam + ':', e); } };
 
+  // Service Worker registreren (PWA)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(e => console.log('SW:', e));
+    // Vangnet: herlaad automatisch zodra een nieuwe versie de controle overneemt
+    let _swReloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (_swReloaded) return; _swReloaded = true; location.reload();
+    });
+  }
+  // Mode initialiseren
+  safe(initModus, 'initModus');
   safe(migreerNaarCampagnes, 'migreerNaarCampagnes');
   safe(initTabs, 'initTabs');
   safe(initMap, 'initMap');
