@@ -1215,6 +1215,14 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
         <button class="btn-sm btn-edit" class="admin-only" onclick="syncNaarDrive()" title="Sla alle data op naar Google Drive" style="background:#e8f0fe;color:#1a73e8;border-color:#a8c7fa;">☁️ Sync to Google</button>
         <button class="btn-sm btn-edit" class="admin-only" onclick="ladenVanDrive()" title="Laad data van Google Drive" style="background:#e8f0fe;color:#1a73e8;border-color:#a8c7fa;">☁️ Laden van Drive</button>
         <button class="btn-primary" onclick="openVrijwForm()">+ Nieuwe vrijwilliger</button>
+        <button class="btn-sm btn-edit" onclick="downloadVrijwSjabloon()" title="Download een leeg Excel-sjabloon">📤 Sjabloon</button>
+        <select id="vw-import-bron" title="Oorsprong van de te importeren lijst" style="padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;">
+          <option value="excel_algemeen">Excel Algemeen / Général</option>
+          <option value="excel_ansje">Excel Ansje</option>
+          <option value="manueel">Manueel / Manuellement</option>
+        </select>
+        <button class="btn-sm btn-success" onclick="document.getElementById('vw-import-file').click()" title="Importeer vrijwilligers uit Excel" style="background:#217346;color:#fff;">📥 Vrijwilligers importeren</button>
+        <input type="file" id="vw-import-file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="importVrijwExcel(this)"/>
       </div>
     </div>
 
@@ -1245,6 +1253,14 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
           <div class="form-group">
             <label>E-mailadres</label>
             <input type="email" id="vw-email" placeholder="marie@example.com"/>
+          </div>
+          <div class="form-group">
+            <label>Oorsprong / Source</label>
+            <select id="vw-bron">
+              <option value="manueel">Manueel / Manuellement</option>
+              <option value="excel_algemeen">Excel Algemeen / Fichier Excel Général</option>
+              <option value="excel_ansje">Excel Ansje / Fichier Excel Ansje</option>
+            </select>
           </div>
         </div>
         <div class="form-group" style="margin-top:14px;">
@@ -1755,6 +1771,13 @@ function getWVs() { return ls('vf_wv', []); }
 function saveWVs(a) { lsSet('vf_wv', a); }
 function getVrijw() { return ls('vf_vrijw', []); }
 function saveVrijwData(a) { lsSet('vf_vrijw', a); }
+// Oorsprong/source labels voor vrijwilligers
+const VW_BRON_LABELS = {
+  manueel:'Manueel / Manuellement',
+  excel_algemeen:'Excel Algemeen / Fichier Excel Général',
+  excel_ansje:'Excel Ansje / Fichier Excel Ansje'
+};
+function vwBronLabel(b){ return VW_BRON_LABELS[b] || VW_BRON_LABELS.manueel; }
 // ── CAMPAGNES (bovenste laag — bedeeldagen + status horen bij een campagne) ──
 function getCampagnes(){ return ls('vf_campagnes', []); }
 function saveCampagnes(a){ lsSet('vf_campagnes', a); }
@@ -2842,6 +2865,7 @@ function openVrijwForm(id=null){
   document.getElementById('vw-roepnaam').value=v?.roepnaam||'';
   document.getElementById('vw-gsm').value=v?.gsm||'';
   document.getElementById('vw-email').value=v?.email||'';
+  document.getElementById('vw-bron').value=v?.bron||'manueel';
   document.getElementById('vw-edit-id').value=id||'';
   vwSelectedWijken = v?.wijken ? [...v.wijken] : [];
   vwSelectedStraten = v?.straten ? [...v.straten] : [];
@@ -2858,7 +2882,7 @@ function saveVrijw(){
   const gsm=document.getElementById('vw-gsm').value.trim();
   if(!vn||!nm){ showToast('Voornaam en naam zijn verplicht.',true); return; }
   const list=getVrijw();
-  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),wijken:vwSelectedWijken,straten:vwSelectedStraten};
+  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),bron:(document.getElementById('vw-bron')||{}).value||'manueel',wijken:vwSelectedWijken,straten:vwSelectedStraten};
   if(vwEditId){
     const i=list.findIndex(x=>x.id===vwEditId);
     if(i>-1) list[i]={...list[i],...obj};
@@ -2866,6 +2890,61 @@ function saveVrijw(){
     list.push({id:uid(),...obj,created:Date.now()});
   }
   saveVrijwData(list); closeVrijwForm(); renderVrijwTabel(); updateKaartFilters(); showToast('Vrijwilliger opgeslagen ✓');
+}
+
+// ── Vrijwilligers importeren via Excel ──
+function downloadVrijwSjabloon(){
+  const aoa=[['Voornaam','Naam','Roepnaam','GSM','E-mail','Notitie'],
+             ['Marie','Janssens','Mie','+32 499 00 00 00','marie@example.com','']];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Vrijwilligers');
+  XLSX.writeFile(wb,'sjabloon_vrijwilligers.xlsx');
+}
+
+async function importVrijwExcel(input){
+  const file=input.files[0]; input.value='';
+  if(!file) return;
+  const bron=(document.getElementById('vw-import-bron')||{}).value||'excel_algemeen';
+  try{
+    showLoader('Vrijwilligers importeren...');
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf);
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+    if(rows.length<2){ hideLoader(); showToast('Geen rijen gevonden in het bestand.',true); return; }
+    const headers=(rows[0]||[]).map(h=>String(h||'').toLowerCase().trim());
+    const vind=(...namen)=>headers.findIndex(h=>namen.some(n=>h.includes(n)));
+    const iVoor =vind('voornaam','prénom','prenom','first');
+    const iNaam =vind('achternaam','naam','nom','last','family');
+    const iRoep =vind('roepnaam','surnom','bijnaam','nickname');
+    const iGsm  =vind('gsm','tel','phone','mobiel','téléphone','g64','nummer');
+    const iMail =vind('mail','email','e-mail','courriel');
+    const iNot  =vind('notitie','note','opmerking','remarque');
+
+    const list=getVrijw();
+    const bestaand=new Set(list.map(v=>((v.voornaam||'')+'|'+(v.naam||'')).toLowerCase().trim()));
+    let toegevoegd=0, overgeslagen=0;
+    for(let r=1;r<rows.length;r++){
+      const row=rows[r]||[];
+      const cel=i=>i>=0?String(row[i]??'').trim():'';
+      let voor=cel(iVoor), naam=cel(iNaam);
+      // Als er maar één naamkolom is, splitsen op spatie
+      if(!voor && naam && iVoor<0){ const p=naam.split(' '); voor=p.shift(); naam=p.join(' '); }
+      if(!voor && !naam) continue;
+      const sleutel=(voor+'|'+naam).toLowerCase().trim();
+      if(bestaand.has(sleutel)){ overgeslagen++; continue; }
+      bestaand.add(sleutel);
+      list.push({id:uid(),voornaam:voor||'?',naam:naam||'',roepnaam:cel(iRoep),
+        gsm:cel(iGsm),email:cel(iMail),notitie:cel(iNot),
+        bron:bron,wijken:[],straten:[],created:Date.now()});
+      toegevoegd++;
+    }
+    saveVrijwData(list);
+    renderVrijwTabel(); updateKaartFilters();
+    hideLoader();
+    showToast(`${toegevoegd} toegevoegd${overgeslagen?', '+overgeslagen+' al aanwezig (overgeslagen)':''} ✓`);
+  }catch(e){ hideLoader(); showToast('Import mislukt: '+e.message,true); }
 }
 
 function deleteVrijw(id){
@@ -2917,11 +2996,12 @@ function renderVrijwTabel(){
   const c=document.getElementById('vrijw-tabel-container');
   if(!list.length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
   c.innerHTML=`<table class="data-table">
-    <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
+    <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
     <tbody>${list.map(v=>`<tr>
       <td><strong>${v.voornaam} ${v.naam}</strong></td>
       <td>${v.roepnaam||'—'}</td>
       <td>${v.gsm?`<a href="https://wa.me/${v.gsm.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:600;">📱 ${v.gsm}</a>`:'—'}</td>
+      <td style="font-size:11px;color:#555;">${vwBronLabel(v.bron)}</td>
       <td style="font-size:12px;">${((v.wijken||[]).length?`<span class="badge badge-blue">${(v.wijken||[]).length} wijk(en)</span> `:'')+((v.straten||[]).length?`<span class="badge badge-green">${(v.straten||[]).length} straat/straten</span>`:'')||'<span style="color:#bbb;">—</span>'}</td>
       <td style="text-align:center;"><input type="checkbox" ${isVrijwOokWV(v.id)?'checked':''} onchange="toggleVrijwAlsWV('${v.id}',this.checked)" title="Zet ook als wijkverantwoordelijke" style="width:18px;height:18px;cursor:pointer;"/></td>
       <td><div class="actions">
