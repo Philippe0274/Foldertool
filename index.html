@@ -1026,12 +1026,12 @@ body.gebruiker-mode #app-logo { top:34px; }
 <!-- ═══════════════════════════════════════════════════════════ MAIN TABS -->
 <img id="app-logo" src="logo-kijk.png" alt="PVDA Folderkaart" />
 <nav class="main-tabs">
-  <button class="main-tab" data-tab="campagne">🎯 Campagne</button>
+  <button class="main-tab admin-only" data-tab="campagne">🎯 Campagne</button>
   <button class="main-tab active" data-tab="kaart">🗺️ Kaart</button>
-  <button class="main-tab" data-tab="bedeeldagen">📅 Bedeeldagen</button>
-  <button class="main-tab" data-tab="wv">👤 Wijkverantwoordelijken</button>
-  <button class="main-tab" data-tab="vrijwilligers">🙋 Vrijwilligers</button>
-  <button class="main-tab" data-tab="straten">📋 Straten & Wijken</button>
+  <button class="main-tab admin-only" data-tab="bedeeldagen">📅 Bedeeldagen</button>
+  <button class="main-tab admin-only" data-tab="wv">👤 Wijkverantwoordelijken</button>
+  <button class="main-tab admin-only" data-tab="vrijwilligers">🙋 Vrijwilligers</button>
+  <button class="main-tab admin-only" data-tab="straten">📋 Straten & Wijken</button>
   <button class="main-tab" data-tab="vergelijking">📊 Vergelijking</button>
   <button class="main-tab" id="taal-knop" onclick="toggleTaal()" style="margin-left:auto;color:#185FA5;font-weight:600;" title="Changer de langue / Taal wisselen">🇫🇷 FR</button>
   <button class="main-tab" onclick="openModal('modal-uitleg')" style="color:#185FA5;">❓ Uitleg</button>
@@ -1061,7 +1061,9 @@ body.gebruiker-mode #app-logo { top:34px; }
     </div>
     <div class="sidebar-section sidebar-filter">
       <h3>Filter</h3>
-      <label style="font-size:12px;font-weight:600;color:#555;">Wijk</label>
+      <label style="font-size:12px;font-weight:600;color:#2C5F8D;">📋 Campagne</label>
+      <select id="kaart-campagne-select" onchange="wisselCampagne(this.value)" style="font-weight:600;"></select>
+      <label style="font-size:12px;font-weight:600;color:#555;margin-top:8px;display:block;">Wijk</label>
       <select id="wijk-filter"><option value="">Alle wijken</option></select>
       <label style="font-size:12px;font-weight:600;color:#555;margin-top:8px;display:block;">Vrijwilliger</label>
       <select id="bedeler-filter"><option value="">Alle vrijwilligers</option></select>
@@ -1079,7 +1081,7 @@ body.gebruiker-mode #app-logo { top:34px; }
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn-sm btn-edit" onclick="loadGeometries(true)" title="Herlaad straten via internet">🔄 Herlaad</button>
-        <button class="btn-sm btn-success" onclick="embedAndDownload()" title="Download offline versie met straten ingebakken" style="background:#217346;color:#fff;">💾 Offline opslaan</button>
+        <button class="btn-sm btn-success admin-only" onclick="embedAndDownload()" title="Download offline versie met straten ingebakken" style="background:#217346;color:#fff;">💾 Offline opslaan</button><button class="btn-sm btn-edit" onclick="printWijkStatus()" title="Druk de statuslijst van de gekozen wijk af (PDF)" style="background:#e8f0f7;color:#2C5F8D;">📄 PDF</button>
       </div>
       <div style="font-size:11px;color:#999;margin-top:5px;" id="geom-status">Straten laden...</div>
     </div>
@@ -1850,7 +1852,7 @@ function importBackup(input) {
       if (data.addrCount) { addrCount=data.addrCount; saveAddrToStorage(); }
       if (data.campagnes) ensureCampagne();
       if (typeof renderCampagneTab==='function') renderCampagneTab();
-      renderWvTabel(); renderVrijwTabel(); renderDagLijst(); updateKaartFilters(); renderStreets();
+      renderWvTabel(); renderVrijwTabel(); renderDagLijst(); if(typeof vulKaartCampagneSelect==='function')vulKaartCampagneSelect(); updateKaartFilters(); renderStreets();
       if (typeof renderStratenTabel==='function') renderStratenTabel();
       showToast(`Back-up hersteld: ${aantal} items ✓`);
     } catch(err) {
@@ -1902,7 +1904,7 @@ function _gdriveHerstel(data) {
   if (data.addrCount) { addrCount = data.addrCount; saveAddrToStorage(); }
   if (data.campagnes) ensureCampagne();
   if (typeof renderCampagneTab === 'function') renderCampagneTab();
-  renderWvTabel(); renderVrijwTabel(); renderDagLijst(); updateKaartFilters(); renderStreets();
+  renderWvTabel(); renderVrijwTabel(); renderDagLijst(); if(typeof vulKaartCampagneSelect==='function')vulKaartCampagneSelect(); updateKaartFilters(); renderStreets();
   if (typeof renderStratenTabel === 'function') renderStratenTabel();
 }
 
@@ -3585,6 +3587,50 @@ function mergeStatus(oud,nieuw){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// PDF voor kijker: afdrukbare statuslijst van (gefilterde) wijk obv globale status
+function printWijkStatus(){
+  const wijkFilter = (document.getElementById('wijk-filter')||{}).value || '';
+  const st = getStatus();
+  let straten = STREETS.slice();
+  if (wijkFilter) straten = straten.filter(s => (STREET_TO_WIJK[s]||'') === wijkFilter);
+  straten.sort((a,b)=>a.localeCompare(b,'nl'));
+
+  const telt = {done:0,bezig:0,notdone:0,skip:0};
+  straten.forEach(s=>{ const k=(st[s]&&st[s].status)||'notdone'; if(telt[k]!==undefined) telt[k]++; });
+  const kleur={done:'#28a745',bezig:'#e6a700',notdone:'#dc3545',skip:'#777'};
+  const titel = wijkFilter ? ('Wijk: '+wijkFilter) : 'Alle wijken';
+
+  const rijen = straten.map(s=>{
+    const info = st[s]||{};
+    const k = info.status||'notdone';
+    return '<tr><td>'+s+'</td><td>'+(STREET_TO_WIJK[s]||'')+'</td>'+
+           '<td style="color:'+kleur[k]+';font-weight:600;">'+(STATUS_LABELS[k]||k)+'</td>'+
+           '<td>'+(info.datum||'—')+'</td></tr>';
+  }).join('');
+
+  const w = window.open('','_blank');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Statuslijst '+titel+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;padding:28px;color:#222;}'+
+    'h1{font-size:21px;color:#2C5F8D;margin-bottom:2px;}p{color:#666;font-size:13px;margin-top:0;}'+
+    'table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px;}'+
+    'th{background:#2C5F8D;color:#fff;padding:8px 10px;text-align:left;}'+
+    'td{padding:6px 10px;border-bottom:1px solid #eee;}'+
+    '.stat{display:inline-block;padding:8px 16px;border-radius:8px;margin:6px 6px 0 0;text-align:center;}'+
+    '.stat-val{font-size:22px;font-weight:800;}.stat-lbl{font-size:11px;color:#555;}'+
+    '@media print{body{padding:10px;}}</style></head><body>'+
+    '<h1>📋 Statuslijst — '+titel+'</h1>'+
+    '<p>Gegenereerd: '+new Date().toLocaleDateString('nl-BE')+' · '+straten.length+' straten</p>'+
+    '<div>'+
+      '<span class="stat" style="background:#d4edda;"><div class="stat-val" style="color:#28a745;">'+telt.done+'</div><div class="stat-lbl">Bedeeld</div></span>'+
+      '<span class="stat" style="background:#fff3cd;"><div class="stat-val" style="color:#e6a700;">'+telt.bezig+'</div><div class="stat-lbl">Bezig</div></span>'+
+      '<span class="stat" style="background:#f8d7da;"><div class="stat-val" style="color:#dc3545;">'+telt.notdone+'</div><div class="stat-lbl">Nog te doen</div></span>'+
+    '</div>'+
+    '<table><thead><tr><th>Straat</th><th>Wijk</th><th>Status</th><th>Laatst gewijzigd</th></tr></thead><tbody>'+
+    rijen+'</tbody></table>'+
+    '<'+'script>window.print();<\/script></body></html>');
+  w.document.close();
+}
+
 // RAPPORT / PDF
 // ═══════════════════════════════════════════════════════════════════
 function generateRapport(){
@@ -3817,11 +3863,20 @@ function wisselCampagne(id){
 }
 // Werk de hele app bij na een campagne-wissel (kaart, filters, lijsten, status)
 function refreshAllesVoorCampagne(){
+  if(typeof vulKaartCampagneSelect==='function') vulKaartCampagneSelect();
   if(typeof updateKaartFilters==='function') updateKaartFilters();
   if(typeof renderStreets==='function') renderStreets();
   if(typeof renderDagLijst==='function') renderDagLijst();
   if(typeof renderStratenTabel==='function') renderStratenTabel();
   if(typeof updateActiveDagInfo==='function') updateActiveDagInfo();
+}
+// Vul de campagne-dropdown op de kaart en markeer de actieve
+function vulKaartCampagneSelect(){
+  const sel=document.getElementById('kaart-campagne-select');
+  if(!sel) return;
+  const camps=getCampagnes();
+  const actief=getActiveCampagneId();
+  sel.innerHTML=camps.map(c=>'<option value="'+c.id+'"'+(c.id===actief?' selected':'')+'>'+c.naam+'</option>').join('');
 }
 function migreerNaarCampagnes(){
   // Eenmalige migratie: bestaande losse status + bedeeldagen -> "Campagne 1"
@@ -4267,6 +4322,7 @@ function exportStatusExcel(){
   safe(migreerNaarCampagnes, 'migreerNaarCampagnes');
   safe(initTabs, 'initTabs');
   safe(initMap, 'initMap');
+  safe(vulKaartCampagneSelect, 'vulKaartCampagneSelect');
   safe(updateKaartFilters, 'updateKaartFilters');
   safe(renderWvTabel, 'renderWvTabel');
   safe(renderVrijwTabel, 'renderVrijwTabel');
