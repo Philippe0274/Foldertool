@@ -1262,6 +1262,14 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
               <option value="excel_ansje">Excel Ansje / Fichier Excel Ansje</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Taal / Langue</label>
+            <select id="vw-taal">
+              <option value="">— Onbekend / Inconnu —</option>
+              <option value="nl">Nederlands</option>
+              <option value="fr">Français</option>
+            </select>
+          </div>
         </div>
         <div class="form-group" style="margin-top:14px;">
           <label>Toegewezen wijken (vast — bv. eigen buurt)</label>
@@ -1778,6 +1786,17 @@ const VW_BRON_LABELS = {
   excel_ansje:'Excel Ansje / Fichier Excel Ansje'
 };
 function vwBronLabel(b){ return VW_BRON_LABELS[b] || VW_BRON_LABELS.manueel; }
+// Taal van vrijwilliger (NL/FR), leeg = onbekend
+const VW_TAAL_LABELS = { nl:'Nederlands', fr:'Français' };
+function vwTaalLabel(t){ return VW_TAAL_LABELS[t] || '—'; }
+// Normaliseer vrije tekst uit Excel naar 'nl' / 'fr' / ''
+function normaliseerTaal(s){
+  const x=String(s||'').toLowerCase().trim();
+  if(!x) return '';
+  if(x.startsWith('n')||x.includes('ned')||x.includes('vla')||x.includes('dutch')) return 'nl';
+  if(x.startsWith('f')||x.includes('fra')||x.includes('french')) return 'fr';
+  return '';
+}
 // ── CAMPAGNES (bovenste laag — bedeeldagen + status horen bij een campagne) ──
 function getCampagnes(){ return ls('vf_campagnes', []); }
 function saveCampagnes(a){ lsSet('vf_campagnes', a); }
@@ -2866,6 +2885,7 @@ function openVrijwForm(id=null){
   document.getElementById('vw-gsm').value=v?.gsm||'';
   document.getElementById('vw-email').value=v?.email||'';
   document.getElementById('vw-bron').value=v?.bron||'manueel';
+  document.getElementById('vw-taal').value=v?.taal||'';
   document.getElementById('vw-edit-id').value=id||'';
   vwSelectedWijken = v?.wijken ? [...v.wijken] : [];
   vwSelectedStraten = v?.straten ? [...v.straten] : [];
@@ -2882,7 +2902,7 @@ function saveVrijw(){
   const gsm=document.getElementById('vw-gsm').value.trim();
   if(!vn||!nm){ showToast('Voornaam en naam zijn verplicht.',true); return; }
   const list=getVrijw();
-  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),bron:(document.getElementById('vw-bron')||{}).value||'manueel',wijken:vwSelectedWijken,straten:vwSelectedStraten};
+  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),bron:(document.getElementById('vw-bron')||{}).value||'manueel',taal:(document.getElementById('vw-taal')||{}).value||'',wijken:vwSelectedWijken,straten:vwSelectedStraten};
   if(vwEditId){
     const i=list.findIndex(x=>x.id===vwEditId);
     if(i>-1) list[i]={...list[i],...obj};
@@ -2894,8 +2914,9 @@ function saveVrijw(){
 
 // ── Vrijwilligers importeren via Excel ──
 function downloadVrijwSjabloon(){
-  const aoa=[['Voornaam','Naam','Roepnaam','GSM','E-mail','Notitie'],
-             ['Marie','Janssens','Mie','+32 499 00 00 00','marie@example.com','']];
+  const aoa=[['Voornaam','Naam','Roepnaam','GSM','E-mail','Taal','Notitie'],
+             ['Marie','Janssens','Mie','+32 499 00 00 00','marie@example.com','NL',''],
+             ['Pierre','Dubois','','+32 488 11 22 33','pierre@example.com','FR','']];
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Vrijwilligers');
@@ -2921,6 +2942,7 @@ async function importVrijwExcel(input){
     const iGsm  =vind('gsm','tel','phone','mobiel','téléphone','g64','nummer');
     const iMail =vind('mail','email','e-mail','courriel');
     const iNot  =vind('notitie','note','opmerking','remarque');
+    const iTaal =vind('taal','langue','language','lang');
 
     const list=getVrijw();
     const bestaand=new Set(list.map(v=>((v.voornaam||'')+'|'+(v.naam||'')).toLowerCase().trim()));
@@ -2936,7 +2958,7 @@ async function importVrijwExcel(input){
       if(bestaand.has(sleutel)){ overgeslagen++; continue; }
       bestaand.add(sleutel);
       list.push({id:uid(),voornaam:voor||'?',naam:naam||'',roepnaam:cel(iRoep),
-        gsm:cel(iGsm),email:cel(iMail),notitie:cel(iNot),
+        gsm:cel(iGsm),email:cel(iMail),notitie:cel(iNot),taal:normaliseerTaal(cel(iTaal)),
         bron:bron,wijken:[],straten:[],created:Date.now()});
       toegevoegd++;
     }
@@ -2996,11 +3018,12 @@ function renderVrijwTabel(){
   const c=document.getElementById('vrijw-tabel-container');
   if(!list.length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
   c.innerHTML=`<table class="data-table">
-    <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
+    <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Taal</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
     <tbody>${list.map(v=>`<tr>
       <td><strong>${v.voornaam} ${v.naam}</strong></td>
       <td>${v.roepnaam||'—'}</td>
       <td>${v.gsm?`<a href="https://wa.me/${v.gsm.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:600;">📱 ${v.gsm}</a>`:'—'}</td>
+      <td style="font-size:12px;">${v.taal?`<span class="badge ${v.taal==='fr'?'badge-blue':'badge-green'}">${vwTaalLabel(v.taal)}</span>`:'<span style="color:#bbb;">—</span>'}</td>
       <td style="font-size:11px;color:#555;">${vwBronLabel(v.bron)}</td>
       <td style="font-size:12px;">${((v.wijken||[]).length?`<span class="badge badge-blue">${(v.wijken||[]).length} wijk(en)</span> `:'')+((v.straten||[]).length?`<span class="badge badge-green">${(v.straten||[]).length} straat/straten</span>`:'')||'<span style="color:#bbb;">—</span>'}</td>
       <td style="text-align:center;"><input type="checkbox" ${isVrijwOokWV(v.id)?'checked':''} onchange="toggleVrijwAlsWV('${v.id}',this.checked)" title="Zet ook als wijkverantwoordelijke" style="width:18px;height:18px;cursor:pointer;"/></td>
