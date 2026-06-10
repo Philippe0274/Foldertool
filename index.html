@@ -921,7 +921,7 @@ body.gebruiker-mode .status-select { pointer-events:none; opacity:.85; }
 /* ── STARTUP SCREEN ── */
 #startup-screen {
   position:fixed; inset:0; background:linear-gradient(135deg,#1a3a5c 0%,#2C5F8D 100%);
-  display:flex; align-items:center; justify-content:center; z-index:9999;
+  display:none; align-items:center; justify-content:center; z-index:9999;
 }
 #startup-screen .startup-card {
   background:#fff; border-radius:16px; padding:36px 32px; max-width:380px; width:92%;
@@ -988,7 +988,10 @@ body.gebruiker-mode #app-logo { top:34px; }
 <!-- GEBRUIKER INFO BAR -->
 <div id="gebruiker-bar">
   <span>👁️ Kijkersmodus — alleen raadplegen</span>
-  <span id="gebruiker-sync-info" style="font-size:11px;color:#aac8e8;"></span>
+  <span style="display:flex; gap:12px; align-items:center;">
+    <span id="gebruiker-sync-info" style="font-size:11px;color:#aac8e8;"></span>
+    <button onclick="toonStartScherm()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:5px;padding:3px 10px;font-size:11px;cursor:pointer;white-space:nowrap;">🔐 Beheerder</button>
+  </span>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ HEADER -->
@@ -2022,13 +2025,25 @@ function afmeldenAdmin() {
 function initModus() {
   const m = getModus();
   _setLogo(m);
-  if (m === 'admin')     { document.getElementById('startup-screen').style.display = 'none'; }
-  else if (m === 'gebruiker') {
-    document.getElementById('startup-screen').style.display = 'none';
+  const ss = document.getElementById('startup-screen');
+  if (m === 'admin') {
+    ss.style.display = 'none';
+    document.body.classList.remove('gebruiker-mode');
+  } else if (m === 'gebruiker') {
+    ss.style.display = 'none';
     document.body.classList.add('gebruiker-mode');
     _autoLoadDriveVoorGebruiker();
+  } else {
+    ss.style.display = 'flex'; // echt nieuwe gebruiker: toon keuzescherm
   }
-  // null → startup screen blijft zichtbaar
+}
+
+// Keuzescherm opnieuw tonen (bv. om als beheerder aan te melden)
+function toonStartScherm() {
+  const ss = document.getElementById('startup-screen');
+  const pwd = document.getElementById('startup-pwd');
+  if (pwd) { pwd.value = ''; pwd.classList.remove('fout'); pwd.placeholder = '• • • •'; }
+  ss.style.display = 'flex';
 }
 
 // Auto-laad data van Drive voor gebruikers (als file ID beschikbaar)
