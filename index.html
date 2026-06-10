@@ -1303,6 +1303,23 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
     <!-- Lijst -->
     <div class="card">
       <div class="card-header"><h3>Vrijwilligerspool</h3></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid #eee;background:#fafbfc;">
+        <input type="text" id="vw-filter-zoek" placeholder="🔎 Zoek naam..." oninput="renderVrijwTabel()" style="flex:1;min-width:150px;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px;"/>
+        <select id="vw-filter-bron" onchange="renderVrijwTabel()" style="padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;">
+          <option value="">Alle oorsprongen</option>
+          <option value="manueel">Manueel / Manuellement</option>
+          <option value="excel_algemeen">Excel Algemeen / Général</option>
+          <option value="excel_ansje">Excel Ansje</option>
+        </select>
+        <select id="vw-filter-taal" onchange="renderVrijwTabel()" style="padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;">
+          <option value="">Alle talen</option>
+          <option value="nl">Nederlands</option>
+          <option value="fr">Français</option>
+          <option value="_leeg">Onbekend</option>
+        </select>
+        <span id="vw-filter-aantal" style="font-size:12px;color:#666;"></span>
+        <button class="btn-sm btn-danger" onclick="verwijderGefilterdeVrijw()" title="Verwijder alle vrijwilligers die nu in de lijst staan (na filter)">🗑️ Verwijder selectie</button>
+      </div>
       <div class="card-body" style="padding:0;">
         <div id="vrijw-tabel-container">
           <div class="empty-table">Nog geen vrijwilligers toegevoegd.</div>
@@ -2935,14 +2952,19 @@ async function importVrijwExcel(input){
     const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
     if(rows.length<2){ hideLoader(); showToast('Geen rijen gevonden in het bestand.',true); return; }
     const headers=(rows[0]||[]).map(h=>String(h||'').toLowerCase().trim());
-    const vind=(...namen)=>headers.findIndex(h=>namen.some(n=>h.includes(n)));
+    const gebruikt=[];
+    const vind=(...namen)=>{
+      const i=headers.findIndex((h,idx)=>!gebruikt.includes(idx) && namen.some(n=>h.includes(n)));
+      if(i>=0) gebruikt.push(i);
+      return i;
+    };
     const iVoor =vind('voornaam','prénom','prenom','first');
-    const iNaam =vind('achternaam','naam','nom','last','family');
     const iRoep =vind('roepnaam','surnom','bijnaam','nickname');
-    const iGsm  =vind('gsm','tel','phone','mobiel','téléphone','g64','nummer');
+    const iNaam =vind('achternaam','familienaam','naam','nom','last','family','surname');
+    const iGsm  =vind('gsm','tel','phone','mobiel','téléphone','nummer');
     const iMail =vind('mail','email','e-mail','courriel');
-    const iNot  =vind('notitie','note','opmerking','remarque');
     const iTaal =vind('taal','langue','language','lang');
+    const iNot  =vind('notitie','note','opmerking','remarque');
 
     const list=getVrijw();
     const bestaand=new Set(list.map(v=>((v.voornaam||'')+'|'+(v.naam||'')).toLowerCase().trim()));
@@ -3013,10 +3035,44 @@ function toggleVrijwAlsWV(vrijwId, aan){
   renderWvTabel(); renderVrijwTabel(); updateKaartFilters();
 }
 
+function gefilterdeVrijw(){
+  let list=getVrijw();
+  const zoek=(document.getElementById('vw-filter-zoek')||{}).value||'';
+  const fBron=(document.getElementById('vw-filter-bron')||{}).value||'';
+  const fTaal=(document.getElementById('vw-filter-taal')||{}).value||'';
+  const z=zoek.toLowerCase().trim();
+  if(z) list=list.filter(v=>((v.voornaam||'')+' '+(v.naam||'')+' '+(v.roepnaam||'')).toLowerCase().includes(z));
+  if(fBron) list=list.filter(v=>(v.bron||'manueel')===fBron);
+  if(fTaal==='_leeg') list=list.filter(v=>!v.taal);
+  else if(fTaal) list=list.filter(v=>v.taal===fTaal);
+  return list;
+}
+
+function verwijderGefilterdeVrijw(){
+  const sel=gefilterdeVrijw();
+  if(!sel.length){ showToast('Geen vrijwilligers in de huidige selectie.',true); return; }
+  const totaal=getVrijw().length;
+  if(sel.length===totaal){
+    if(!confirm('Let op: dit verwijdert ALLE '+totaal+' vrijwilligers. Doorgaan?')) return;
+  } else {
+    if(!confirm(sel.length+' vrijwilliger(s) uit de huidige selectie verwijderen?')) return;
+  }
+  const teWissen=new Set(sel.map(v=>v.id));
+  // Verwijder ook auto-gekoppelde WV's van die personen
+  const wvs=getWVs();
+  if(wvs.some(w=>teWissen.has(w.vanVrijwId))) saveWVs(wvs.filter(w=>!teWissen.has(w.vanVrijwId)));
+  saveVrijwData(getVrijw().filter(v=>!teWissen.has(v.id)));
+  renderWvTabel(); renderVrijwTabel(); updateKaartFilters();
+  showToast(sel.length+' vrijwilliger(s) verwijderd');
+}
+
 function renderVrijwTabel(){
-  const list=getVrijw();
+  const list=gefilterdeVrijw();
   const c=document.getElementById('vrijw-tabel-container');
-  if(!list.length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
+  const aantalEl=document.getElementById('vw-filter-aantal');
+  if(aantalEl) aantalEl.textContent=list.length+' / '+getVrijw().length;
+  if(!getVrijw().length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
+  if(!list.length){ c.innerHTML='<div class="empty-table">Geen vrijwilligers in deze selectie.</div>'; return; }
   c.innerHTML=`<table class="data-table">
     <thead><tr><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Taal</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
     <tbody>${list.map(v=>`<tr>
