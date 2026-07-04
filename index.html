@@ -799,7 +799,7 @@ header.app-header::after {
 .status-dot.missing { background:#bbb; }
 
 /* ── BEHEER TABS (WV, Vrijwilligers, Bedeeldagen) ── */
-#tab-wv, #tab-vrijwilligers, #tab-bedeeldagen { flex-direction:column; overflow-y:auto; }
+#tab-wv, #tab-vrijwilligers, #tab-bedeeldagen, #tab-ajour, #tab-campagne, #tab-vergelijking, #tab-straten { flex-direction:column; overflow-y:auto; }
 .beheer-page { max-width:1100px; margin:0 auto; padding:24px 20px; width:100%; }
 .beheer-page h2 { font-size:20px; font-weight:700; color:#1a2e40; margin-bottom:6px; }
 .beheer-page .page-desc { font-size:13px; color:#666; margin-bottom:20px; }
@@ -842,6 +842,121 @@ header.app-header::after {
 .data-table tr:hover { background:#fafbfc; }
 .data-table .actions { display:flex; gap:6px; justify-content:flex-end; }
 .empty-table { padding:40px; text-align:center; color:#999; font-size:14px; font-style:italic; }
+
+/* ── A JOUR ZETTING ── */
+#ajour-search-results { position:absolute; left:0; right:0; top:100%; background:#fff; border:1px solid #ccc; border-top:none; border-radius:0 0 6px 6px; max-height:260px; overflow-y:auto; z-index:1500; display:none; box-shadow:0 8px 18px rgba(0,0,0,.16); }
+#ajour-search-results.show { display:block; }
+#ajour-search-results .ajour-result { padding:8px 10px; font-size:13px; cursor:pointer; border-bottom:1px solid #f2f2f2; display:flex; justify-content:space-between; gap:10px; }
+#ajour-search-results .ajour-result:hover, #ajour-search-results .ajour-result.active { background:#e6f1fb; }
+.ajour-info { margin-top:10px; padding:9px 11px; border:1px solid #dde3ea; border-radius:8px; background:#f8fafc; font-size:12px; color:#333; line-height:1.35; }
+.ajour-status-row { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.ajour-status-btn { border:none; border-radius:6px; padding:7px 10px; font-size:12px; font-weight:700; cursor:pointer; }
+.ajour-status-btn.done { background:#28a745; color:#fff; }
+.ajour-status-btn.notdone { background:#dc3545; color:#fff; }
+.ajour-status-btn.bezig { background:#ffc107; color:#563f00; }
+.ajour-status-btn.skip { background:#9ca3af; color:#fff; }
+.ajour-status-btn.missing { background:#666; color:#fff; }
+.ajour-status-btn.active { outline:3px solid rgba(44,95,141,.25); box-shadow:0 0 0 1px #2C5F8D inset; }
+.ajour-counts { display:flex; gap:8px; flex-wrap:wrap; }
+.ajour-count { padding:8px 10px; border-radius:8px; font-size:12px; font-weight:800; }
+.ajour-recent { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; }
+.ajour-recent-row { border:1px solid #edf0f3; border-radius:8px; padding:8px 10px; font-size:12px; background:#fff; line-height:1.45; }
+.ajour-wijk-tabel table, .ajour-status-lijst table { width:100%; border-collapse:collapse; font-size:13px; }
+.ajour-wijk-tabel th, .ajour-status-lijst th { text-align:left; padding:7px 9px; background:#f4f6f8; border-bottom:1px solid #dde3ea; font-size:12px; color:#555; }
+.ajour-wijk-tabel td, .ajour-status-lijst td { padding:7px 9px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
+.ajour-row-actions { display:flex; gap:5px; flex-wrap:wrap; }
+.ajour-mini-status { border:1px solid transparent; border-radius:5px; padding:5px 7px; font-size:11px; font-weight:800; cursor:pointer; background:#f3f4f6; color:#333; }
+.ajour-mini-status.done.active, .ajour-mini-status.done:hover { background:#28a745; color:#fff; }
+.ajour-mini-status.notdone.active, .ajour-mini-status.notdone:hover { background:#dc3545; color:#fff; }
+.ajour-mini-status.bezig.active, .ajour-mini-status.bezig:hover { background:#ffc107; color:#563f00; }
+.ajour-mini-status.skip.active, .ajour-mini-status.skip:hover { background:#9ca3af; color:#fff; }
+.ajour-mini-status.missing.active, .ajour-mini-status.missing:hover { background:#666; color:#fff; }
+.campagne-days { margin-top:8px; border:1px solid #e6ebf0; border-radius:8px; overflow:hidden; background:#fff; }
+.campagne-day-row { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:7px 9px; border-bottom:1px solid #f0f0f0; font-size:12px; }
+.campagne-day-row:last-child { border-bottom:none; }
+
+/* ── CAMPAGNEKAARTEN ── */
+.campaign-board { display:flex; flex-direction:column; gap:12px; }
+.campaign-card { background:#fff; border:1px solid #e5e7eb; border-left:4px solid #d1d5db; border-radius:8px; box-shadow:0 1px 3px rgba(31,41,55,.06); overflow:hidden; }
+.campaign-card.active { border-left-color:#c8102e; box-shadow:0 6px 18px rgba(31,41,55,.08); }
+.campaign-card-head { padding:14px 18px 12px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start; border-bottom:1px solid #eef0f3; background:linear-gradient(180deg,#fff,#fbfcfd); }
+.campaign-title-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+.campaign-title-row h3 { font-size:18px; line-height:1.2; color:#1f2933; margin:0; }
+.campaign-meta { display:flex; flex-wrap:wrap; gap:8px 14px; font-size:12px; color:#667085; }
+.campaign-meta strong { color:#344054; }
+.campaign-actions { display:flex; gap:7px; justify-content:flex-end; flex-wrap:wrap; }
+.campaign-body { padding:12px 18px 14px; }
+.campaign-section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; font-size:12px; font-weight:800; color:#344054; text-transform:uppercase; letter-spacing:.35px; }
+.delivery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; align-items:stretch; }
+.delivery-grid.empty { grid-template-columns:1fr; }
+.delivery-card { border:1px solid #e5e7eb; border-radius:8px; background:#f8fafc; padding:10px; display:flex; flex-direction:column; gap:8px; min-height:132px; }
+.delivery-card.done { background:#eef8f1; border-color:#cfe8d6; }
+.delivery-card.bezig { background:#fff8e7; border-color:#f4dfad; }
+.delivery-card.empty { min-height:58px; background:#f9fafb; border-style:dashed; color:#667085; align-items:center; justify-content:space-between; text-align:left; flex-direction:row; }
+.delivery-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.delivery-date { font-weight:800; color:#1f2933; font-size:14px; }
+.delivery-name { color:#667085; font-size:12px; margin-top:2px; }
+.delivery-helper-count { font-size:11px; font-weight:800; color:#344054; background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:3px 8px; white-space:nowrap; }
+.helper-chip-row { display:flex; flex-wrap:wrap; gap:5px; min-height:22px; }
+.helper-chip { display:inline-flex; align-items:center; gap:5px; max-width:100%; padding:4px 8px; border-radius:999px; background:#fce8ec; color:#9f1239; font-size:11px; font-weight:800; }
+.helper-chip.muted { background:#eef2f6; color:#667085; }
+.helper-chip button { border:0; background:transparent; color:inherit; cursor:pointer; padding:0; font-size:13px; line-height:1; font-weight:900; }
+.delivery-actions { display:flex; gap:5px; flex-wrap:wrap; margin-top:auto; padding-top:7px; border-top:1px solid rgba(229,231,235,.8); }
+.campaign-footer { margin-top:10px; padding-top:10px; border-top:1px solid #eef0f3; display:grid; grid-template-columns:minmax(200px,1fr) auto; gap:12px; align-items:end; }
+.campaign-progress-label { display:flex; justify-content:space-between; gap:10px; font-size:12px; color:#667085; margin-bottom:5px; }
+.campaign-progress-label strong { color:#1f2933; }
+.campaign-progress { height:8px; background:#eef2f6; border-radius:99px; overflow:hidden; }
+.campaign-progress > div { height:100%; background:#16a34a; border-radius:99px; }
+.campaign-stats { font-size:12px; color:#667085; text-align:right; line-height:1.6; }
+.helper-picker { border:1px solid #dde3ea; border-radius:8px; background:#fff; padding:12px; display:grid; gap:10px; }
+.helper-search-wrap { position:relative; }
+.helper-search-wrap input { width:100%; padding:10px 12px; border:1px solid #cfd7df; border-radius:7px; font-size:14px; }
+.helper-results { display:none; position:absolute; z-index:2200; left:0; right:0; top:calc(100% + 4px); background:#fff; border:1px solid #d8dee6; border-radius:8px; box-shadow:0 12px 24px rgba(31,41,55,.15); max-height:246px; overflow:auto; }
+.helper-results.show { display:block; }
+.helper-result { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 10px; border-bottom:1px solid #f0f2f5; font-size:13px; }
+.helper-result:last-child { border-bottom:0; }
+.helper-result-main strong { display:block; color:#1f2933; }
+.helper-result-main span { display:block; color:#667085; font-size:11px; margin-top:1px; }
+.helper-add-btn { border:0; background:#c8102e; color:#fff; border-radius:6px; min-width:30px; height:28px; font-weight:900; cursor:pointer; }
+.helper-selected-head { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12px; color:#667085; }
+.helper-selected-head strong { color:#344054; }
+.helper-empty { font-size:12px; color:#98a2b3; padding:8px 0; }
+@media(max-width:760px){
+  .campaign-card-head { grid-template-columns:1fr; }
+  .campaign-actions { justify-content:flex-start; }
+  .campaign-footer { grid-template-columns:1fr; }
+  .campaign-stats { text-align:left; }
+  .delivery-grid { grid-template-columns:1fr; }
+}
+@media(max-width:800px){ #tab-ajour .beheer-page > div[style*="grid-template-columns"] { grid-template-columns:1fr !important; } }
+
+/* ── VRIJWILLIGER KAARTJES ── */
+.vrijw-card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(255px, 1fr)); gap:12px; padding:14px; background:#f6f8fb; }
+.vrijw-card { background:#c8102e; border:1px solid #a80d26; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 3px rgba(26,46,64,.10); color:#fff; }
+.vrijw-card.selected { border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.32); }
+.vrijw-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.vrijw-card-title { min-width:0; }
+.vrijw-card-title strong { display:block; font-size:14px; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vrijw-card-title span { display:block; font-size:12px; color:rgba(255,255,255,.82); margin-top:2px; }
+.vrijw-card-check { display:flex; align-items:center; gap:5px; font-size:11px; color:#fff; white-space:nowrap; }
+.vrijw-card-check input { width:16px; height:16px; margin:0; cursor:pointer; }
+.vrijw-photo-row { display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.24); border-radius:8px; padding:8px; }
+.vrijw-photo-preview { width:58px; height:58px; border-radius:8px; object-fit:cover; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); flex-shrink:0; }
+.vrijw-photo-placeholder { width:58px; height:58px; border-radius:8px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.vrijw-photo-tools { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
+.vrijw-photo-tools label { display:inline-flex; align-items:center; justify-content:center; width:max-content; max-width:100%; padding:5px 9px; border-radius:5px; background:#fff; color:#c8102e; font-size:11px; font-weight:800; cursor:pointer; }
+.vrijw-photo-tools input { display:none; }
+.vrijw-photo-tools span { font-size:11px; color:rgba(255,255,255,.82); }
+.vrijw-mini-form { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.vrijw-mini-form label { display:flex; flex-direction:column; gap:3px; font-size:10px; font-weight:700; color:rgba(255,255,255,.86); text-transform:uppercase; letter-spacing:.2px; }
+.vrijw-mini-form input, .vrijw-mini-form select { width:100%; min-width:0; padding:6px 7px; border:1px solid rgba(255,255,255,.52); border-radius:6px; font-size:12px; font-family:inherit; background:#fff; color:#1a2e40; }
+.vrijw-mini-form .wide { grid-column:1 / -1; }
+.vrijw-card-meta { display:flex; flex-wrap:wrap; gap:5px; align-items:center; min-height:20px; }
+.vrijw-card-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,.24); padding-top:9px; }
+.vrijw-card-actions .left, .vrijw-card-actions .right { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.vrijw-wv-toggle { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:#fff; cursor:pointer; }
+.vrijw-wv-toggle input { width:16px; height:16px; margin:0; cursor:pointer; }
+@media(max-width:700px){ .vrijw-card-grid { grid-template-columns:1fr; padding:10px; } .vrijw-mini-form { grid-template-columns:1fr; } }
 
 /* ── BADGES ── */
 .badge { display:inline-block; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:700; }
@@ -1020,7 +1135,7 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
 <nav class="main-tabs">
   <button class="main-tab admin-only" data-tab="campagne">🎯 Campagne</button>
   <button class="main-tab active" data-tab="kaart">🗺️ Kaart</button>
-  <button class="main-tab admin-only" data-tab="bedeeldagen">📅 Bedeeldagen</button>
+  <button class="main-tab admin-only" data-tab="ajour">✅ À jour zetting</button>
   <button class="main-tab admin-only" data-tab="wv">👤 Wijkverantwoordelijken</button>
   <button class="main-tab admin-only" data-tab="vrijwilligers">🙋 Vrijwilligers</button>
   <button class="main-tab admin-only" data-tab="straten">📋 Straten & Wijken</button>
@@ -1084,6 +1199,109 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
     <div class="street-list-hdr">Straten (<span id="street-count">0</span>)</div>
     <div class="street-list" id="street-list">
       <div style="padding:20px;text-align:center;color:#999;font-size:13px;">Laad een bedeeldag om straten te zien.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ A JOUR ZETTING TAB -->
+<div class="tab-page admin-only" id="tab-ajour">
+  <div class="beheer-page" style="max-width:1360px;padding-top:16px;padding-bottom:96px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+      <div>
+        <h2>✅ À jour zetting</h2>
+        <p class="page-desc" style="margin-bottom:0;">Werk snel de status van een straat bij voor één gekozen campagne en één gekozen bedeeldag.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Status bijwerken</h3></div>
+      <div class="card-body" style="padding:14px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Campagne *</label>
+            <select id="ajour-campagne" onchange="ajourCampagneChanged()"></select>
+          </div>
+          <div class="form-group">
+            <label>Bedeeldag *</label>
+            <select id="ajour-dag" onchange="ajourDagChanged()">
+              <option value="">Kies eerst een campagne...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Straat zoeken *</label>
+            <div style="position:relative;">
+              <input type="text" id="ajour-search" placeholder="Typ straatnaam..." autocomplete="off" oninput="ajourUpdateSearch()" onfocus="ajourUpdateSearch()" onkeydown="ajourSearchKeyNav(event)" onblur="setTimeout(()=>document.getElementById('ajour-search-results').classList.remove('show'),180)"/>
+              <div id="ajour-search-results"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Wijk à jour zetten</label>
+            <select id="ajour-wijk" onchange="ajourWijkChanged()">
+              <option value="">Kies een wijk...</option>
+            </select>
+            <div id="ajour-wijk-count" style="font-size:12px;color:#666;margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <div id="ajour-wijk-inline" style="display:none;margin-top:10px;border:1px solid #dde3ea;border-radius:8px;overflow:hidden;"></div>
+
+        <div id="ajour-keuze-info" class="ajour-info">
+          Kies een campagne, een bedeeldag en een straat.
+        </div>
+
+        <div class="ajour-status-row">
+          <button type="button" class="ajour-status-btn done" onclick="ajourSetStatus('done')">Bedeeld</button>
+          <button type="button" class="ajour-status-btn notdone" onclick="ajourSetStatus('notdone')">Niet bedeeld</button>
+          <button type="button" class="ajour-status-btn bezig" onclick="ajourSetStatus('bezig')">Bezig / half gedaan</button>
+          <button type="button" class="ajour-status-btn skip" onclick="ajourSetStatus('skip')">Overgeslagen</button>
+          <button type="button" class="ajour-status-btn missing" onclick="ajourSetStatus('missing')">Ontbreekt</button>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="ajourSave()">💾 Opslaan</button>
+          <span id="ajour-save-hint" style="font-size:12px;color:#777;">Opslaan kan pas na campagne, bedeeldag, straat en status.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="display:none;">
+      <div class="card-header"><h3>Wijkstraten snel bijwerken</h3></div>
+      <div class="card-body" style="padding:0;">
+        <div id="ajour-wijk-acties" style="display:none;padding:12px 14px;border-bottom:1px solid #eef2f6;background:#fafbfc;">
+          <div style="font-size:12px;font-weight:700;color:#2C5F8D;margin-bottom:8px;">Volledige wijk op status zetten</div>
+          <div class="ajour-row-actions">
+            <button type="button" class="ajour-mini-status done" onclick="ajourSetWijkStatus('done')">Hele wijk bedeeld</button>
+            <button type="button" class="ajour-mini-status notdone" onclick="ajourSetWijkStatus('notdone')">Hele wijk not done</button>
+            <button type="button" class="ajour-mini-status bezig" onclick="ajourSetWijkStatus('bezig')">Hele wijk bezig</button>
+            <button type="button" class="ajour-mini-status skip" onclick="ajourSetWijkStatus('skip')">Hele wijk skip</button>
+            <button type="button" class="ajour-mini-status missing" onclick="ajourSetWijkStatus('missing')">Hele wijk missing</button>
+          </div>
+        </div>
+        <div id="ajour-wijk-tabel" class="ajour-wijk-tabel">
+          <div class="empty-table">Kies een campagne, bedeeldag en wijk.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,1fr);gap:16px;">
+      <div class="card">
+        <div class="card-header"><h3>Telling gekozen bedeeldag</h3></div>
+        <div class="card-body">
+          <div id="ajour-telling" class="ajour-counts"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Recent à jour gezet</h3></div>
+        <div class="card-body">
+          <div id="ajour-recent" class="ajour-recent"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Straten met status op deze bedeeldag</h3></div>
+      <div class="card-body" style="padding:0;">
+        <div id="ajour-status-lijst" class="ajour-status-lijst"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1341,21 +1559,23 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
 
 <!-- TAB: CAMPAGNE -->
 <div class="tab-page" id="tab-campagne">
-  <div class="beheer-page">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+  <div class="beheer-page" style="max-width:1360px;padding-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
       <div>
         <h2>🎯 Campagne</h2>
-        <p class="page-desc">Een campagne groepeert bedeeldagen en heeft een eigen straten-status. Elke campagne start vers — bedeeldagen en status horen bij de gekozen campagne.</p>
+        <p class="page-desc" style="margin-bottom:0;"><span data-lang="nl">Campagnes groeperen bedeeldagen, helpers en straten-status.</span><span data-lang="fr" style="display:none;">Les campagnes regroupent les jours de distribution, les bénévoles et le statut des rues.</span></p>
       </div>
-      <button class="btn-primary" onclick="openCampagneForm()">+ Nieuwe campagne</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="openCampagneForm()">+ Nieuwe campagne</button>
+      </div>
     </div>
 
-    <div class="card" style="margin-bottom:16px;">
-      <div class="card-body">
-        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Actieve campagne</label>
-        <select id="campagne-active-select" onchange="wisselCampagne(this.value)" style="width:100%;max-width:480px;padding:9px;border:1px solid #ccc;border-radius:6px;font-size:14px;">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-body" style="padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <label style="font-size:13px;font-weight:700;display:block;"><span data-lang="nl">Actieve campagne</span><span data-lang="fr" style="display:none;">Campagne active</span></label>
+        <select id="campagne-active-select" onchange="wisselCampagne(this.value)" style="width:100%;max-width:520px;padding:8px 9px;border:1px solid #ccc;border-radius:6px;font-size:14px;">
         </select>
-        <p style="font-size:12px;color:#888;margin-top:8px;">De hele app (kaart, bedeeldagen, straten-status, flyers) toont de gegevens van deze campagne.</p>
+        <span style="font-size:12px;color:#888;"><span data-lang="nl">Kaart, à jour zetting en straten-status volgen deze selectie.</span><span data-lang="fr" style="display:none;">La carte, la mise à jour et le statut des rues suivent cette sélection.</span></span>
       </div>
     </div>
 
@@ -1493,10 +1713,67 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
         <label>Notities</label>
         <textarea id="dag-notities" rows="2" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px;font-family:inherit;"></textarea>
       </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label>Aanwezige vrijwilligers</label>
+        <div id="dag-vrijwilligers" class="helper-picker">
+          <div class="helper-search-wrap">
+            <input type="text" id="dag-helper-search" placeholder="Zoek op naam, roepnaam of gsm..." autocomplete="off" oninput="dagHelperSearch()" onfocus="dagHelperSearch()" onkeydown="dagHelperKey(event)"/>
+            <div id="dag-helper-results" class="helper-results"></div>
+          </div>
+          <div class="helper-selected-head">
+            <strong>Geselecteerde helpers</strong>
+            <span id="dag-helper-count">0 geselecteerd</span>
+          </div>
+          <div id="dag-helper-selected" class="helper-chip-row"></div>
+        </div>
+        <div style="font-size:11px;color:#777;margin-top:5px;">Zoek een vrijwilliger, klik op +, en voeg zo de aanwezigen toe. Deze lijst wordt later gebruikt voor bedankberichten.</div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('modal-nieuwedag')">Annuleren</button>
       <button class="btn-primary" onclick="saveDag()">Aanmaken</button>
+    </div>
+  </div>
+</div>
+
+<!-- Helpers beheren modal -->
+<div class="modal-overlay" id="modal-dag-helpers">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="dag-helpers-title">Helpers beheren</h3>
+      <button class="modal-close" onclick="closeModal('modal-dag-helpers')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="dag-helpers-context" style="font-size:13px;color:#667085;margin-bottom:12px;"></div>
+      <div id="edit-dag-vrijwilligers" class="helper-picker">
+        <div class="helper-search-wrap">
+          <input type="text" id="edit-dag-helper-search" placeholder="Zoek op naam, roepnaam of gsm..." autocomplete="off" oninput="dagHelperSearch('edit')" onfocus="dagHelperSearch('edit')" onkeydown="dagHelperKey(event,'edit')"/>
+          <div id="edit-dag-helper-results" class="helper-results"></div>
+        </div>
+        <div class="helper-selected-head">
+          <strong>Geselecteerde helpers</strong>
+          <span id="edit-dag-helper-count">0 geselecteerd</span>
+        </div>
+        <div id="edit-dag-helper-selected" class="helper-chip-row"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-dag-helpers')">Annuleren</button>
+      <button class="btn-primary" onclick="saveDagHelpers()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bedanklijst campagne -->
+<div class="modal-overlay" id="modal-bedanklijst">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🙏 Bedanklijst campagne</h3>
+      <button class="modal-close" onclick="closeModal('modal-bedanklijst')">✕</button>
+    </div>
+    <div class="modal-body" id="bedanklijst-body"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-bedanklijst')">Sluiten</button>
     </div>
   </div>
 </div>
@@ -1848,6 +2125,10 @@ function normaliseerTaal(s){
   if(x.startsWith('f')||x.includes('fra')||x.includes('french')) return 'fr';
   return '';
 }
+function vrijwilligerNaam(v){
+  if(!v) return 'Onbekende vrijwilliger';
+  return ((v.roepnaam||v.voornaam||'')+' '+(v.naam||'')).trim() || 'Naamloze vrijwilliger';
+}
 // ── CAMPAGNES (bovenste laag — bedeeldagen + status horen bij een campagne) ──
 function getCampagnes(){ return ls('vf_campagnes', []); }
 function saveCampagnes(a){ lsSet('vf_campagnes', a); }
@@ -2161,12 +2442,347 @@ function initTabs() {
       btn.classList.add('active');
       document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
       if (btn.dataset.tab==='kaart') setTimeout(()=>map&&map.invalidateSize(),100);
+      if (btn.dataset.tab==='ajour') initAjourTab();
       if (btn.dataset.tab==='straten') renderStratenTabel();
       if (btn.dataset.tab==='campagne') renderCampagneTab();
       if (btn.dataset.tab==='vergelijking') renderVergelijking();
       if (huidigeTaal==='fr') setTimeout(()=>vertaalDOM('fr'), 30);
     });
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// A JOUR ZETTING
+// ═══════════════════════════════════════════════════════════════════
+const AJOUR_STATUSES = {
+  done:    {label:'Bedeeld', color:'#28a745'},
+  notdone: {label:'Niet bedeeld', color:'#dc3545'},
+  bezig:   {label:'Bezig / half gedaan', color:'#ffc107'},
+  skip:    {label:'Overgeslagen', color:'#9ca3af'},
+  missing: {label:'Ontbreekt / niet gevonden', color:'#666'}
+};
+let ajourSelectedStreet = '';
+let ajourSelectedStatus = '';
+let ajourSearchMatches = [];
+let ajourSearchActiveIdx = -1;
+
+function ajourResultStatus(v){
+  const raw=typeof v==='string' ? v : (v?.status || '');
+  const st=String(raw||'').toLowerCase().trim();
+  return AJOUR_STATUSES[st] ? st : 'notdone';
+}
+function ajourCampagneStatus(campagneId, straat){
+  const st=ls('vf_status_'+campagneId,{});
+  const raw=String(st[straat]?.status || '').toLowerCase().trim();
+  return AJOUR_STATUSES[raw] ? raw : 'notdone';
+}
+function ajourSetCampagneStatus(campagneId, straat, status, dagId){
+  const all=ls('vf_status_'+campagneId,{});
+  all[straat]={...(all[straat]||{}), status, datum:new Date().toISOString().slice(0,10), bron:'ajourzetting', bedeeldagId:dagId, updatedAt:new Date().toISOString()};
+  lsSet('vf_status_'+campagneId, all);
+}
+function ajourDagById(id){ return getDagen().find(d=>d.id===id)||null; }
+function ajourNorm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+
+function initAjourTab(){
+  const campSel=document.getElementById('ajour-campagne');
+  if(!campSel) return;
+  const currentCamp=campSel.value || getActiveCampagneId() || '';
+  const camps=getCampagnes();
+  campSel.innerHTML='<option value="">Kies campagne...</option>'+camps.map(c=>`<option value="${c.id}"${c.id===currentCamp?' selected':''}>${c.naam}</option>`).join('');
+  if(currentCamp && camps.some(c=>c.id===currentCamp)) campSel.value=currentCamp;
+  ajourFillDagen();
+  ajourFillWijken();
+  ajourRenderState();
+  ajourRenderRecent();
+}
+function ajourCampagneChanged(){
+  ajourSelectedStreet='';
+  ajourSelectedStatus='';
+  document.getElementById('ajour-search').value='';
+  ajourFillDagen();
+  ajourFillWijken();
+  ajourRenderState();
+}
+function ajourDagChanged(){
+  ajourSelectedStreet='';
+  ajourSelectedStatus='';
+  document.getElementById('ajour-search').value='';
+  ajourRenderState();
+}
+function ajourFillWijken(){
+  const sel=document.getElementById('ajour-wijk');
+  if(!sel) return;
+  const old=sel.value;
+  sel.innerHTML='<option value="">Kies een wijk...</option>'+ALL_WIJKEN.slice().sort((a,b)=>a.localeCompare(b,'nl-BE')).map(w=>`<option value="${w}"${w===old?' selected':''}>${w}</option>`).join('');
+}
+function ajourWijkChanged(){
+  ajourSelectedStreet='';
+  const zoek=document.getElementById('ajour-search');
+  if(zoek) zoek.value='';
+  document.getElementById('ajour-search-results')?.classList.remove('show');
+  ajourRenderWijkTabel();
+  ajourRenderState();
+}
+function openAjourVoorDag(campagneId, dagId){
+  setActiveCampagneId(campagneId);
+  refreshAllesVoorCampagne();
+  document.querySelector('.main-tab[data-tab="ajour"]')?.click();
+  setTimeout(()=>{
+    const cs=document.getElementById('ajour-campagne');
+    const ds=document.getElementById('ajour-dag');
+    if(cs) cs.value=campagneId;
+    ajourFillDagen();
+    if(ds) ds.value=dagId;
+    ajourFillWijken();
+    ajourRenderState();
+  }, 30);
+}
+function ajourFillDagen(){
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagSel=document.getElementById('ajour-dag');
+  if(!dagSel) return;
+  const old=dagSel.value;
+  const dagen=getDagen().filter(d=>(d.campagneId||null)===campId);
+  dagSel.innerHTML='<option value="">Kies bedeeldag...</option>'+dagen.map(d=>`<option value="${d.id}"${d.id===old?' selected':''}>${d.datum}${d.naam?' - '+d.naam:''}</option>`).join('');
+  if(old && dagen.some(d=>d.id===old)) dagSel.value=old;
+}
+function ajourUpdateSearch(){
+  const q=(document.getElementById('ajour-search')?.value||'').toLowerCase().trim();
+  const box=document.getElementById('ajour-search-results');
+  if(!box) return;
+  ajourSelectedStreet='';
+  const wijk=document.getElementById('ajour-wijk')?.value||'';
+  const basis=wijk ? ajourStratenVoorWijk(wijk) : STREETS;
+  const nq=ajourNorm(q);
+  ajourSearchMatches=basis.filter(s=>!nq || ajourNorm(s).includes(nq) || ajourNorm(STREET_TO_WIJK[s]).includes(nq)).sort((a,b)=>a.localeCompare(b,'nl-BE')).slice(0,60);
+  ajourSearchActiveIdx=-1;
+  if(!q || !ajourSearchMatches.length){ box.classList.remove('show'); ajourRenderState(); return; }
+  box.innerHTML=ajourSearchMatches.map((s,i)=>`<div class="ajour-result" data-i="${i}" onmousedown="ajourPickStreet('${s.replace(/'/g,"\\'")}')"><span>${s}</span><small style="color:#777;">${STREET_TO_WIJK[s]||''}</small></div>`).join('');
+  box.classList.add('show');
+  ajourRenderState();
+}
+function ajourSearchKeyNav(e){
+  const box=document.getElementById('ajour-search-results');
+  if(!box?.classList.contains('show')) return;
+  const opts=box.querySelectorAll('.ajour-result');
+  if(e.key==='ArrowDown'){ e.preventDefault(); ajourSearchActiveIdx=Math.min(ajourSearchActiveIdx+1,opts.length-1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); ajourSearchActiveIdx=Math.max(ajourSearchActiveIdx-1,0); }
+  else if(e.key==='Enter'){ e.preventDefault(); const s=ajourSearchMatches[ajourSearchActiveIdx>=0?ajourSearchActiveIdx:0]; if(s) ajourPickStreet(s); return; }
+  else if(e.key==='Escape'){ box.classList.remove('show'); return; }
+  else return;
+  opts.forEach((o,i)=>o.classList.toggle('active',i===ajourSearchActiveIdx));
+  opts[ajourSearchActiveIdx]?.scrollIntoView({block:'nearest'});
+}
+function ajourPickStreet(straat){
+  ajourSelectedStreet=straat;
+  document.getElementById('ajour-search').value=straat;
+  document.getElementById('ajour-search-results').classList.remove('show');
+  ajourRenderState();
+}
+function ajourSetStatus(status){
+  ajourSelectedStatus=status;
+  document.querySelectorAll('.ajour-status-btn').forEach(b=>b.classList.toggle('active', b.classList.contains(status)));
+  ajourRenderState();
+}
+function ajourStatusLabel(status){
+  return AJOUR_STATUSES[status]?.label || status || 'Niet bekend';
+}
+function ajourRenderState(){
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagId=document.getElementById('ajour-dag')?.value||'';
+  const camp=getCampagnes().find(c=>c.id===campId);
+  const dag=ajourDagById(dagId);
+  const info=document.getElementById('ajour-keuze-info');
+  if(info){
+    const dagStatus=ajourSelectedStreet&&dag ? ajourResultStatus(dag.resultaten?.[ajourSelectedStreet]) : '';
+    const campStatus=ajourSelectedStreet&&campId ? ajourCampagneStatus(campId, ajourSelectedStreet) : '';
+    info.innerHTML=`<strong>Campagne:</strong> ${camp?camp.naam:'—'}<br>
+      <strong>Bedeeldag:</strong> ${dag?(dag.datum+(dag.naam?' - '+dag.naam:'')):'—'}<br>
+      <strong>Straat:</strong> ${ajourSelectedStreet||'—'}<br>
+      <strong>Huidige status op deze bedeeldag:</strong> ${AJOUR_STATUSES[dagStatus]?.label||'Niet bekend'}<br>
+      <strong>Actuele campagnestatus:</strong> ${AJOUR_STATUSES[campStatus]?.label||'Niet bekend'}<br>
+      <strong>Nieuwe status:</strong> ${AJOUR_STATUSES[ajourSelectedStatus]?.label||'—'}`;
+  }
+  ajourRenderTelling();
+  ajourRenderWijkTabel();
+  ajourRenderStatusLijst();
+}
+function ajourSave(){
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagId=document.getElementById('ajour-dag')?.value||'';
+  if(!campId || !dagId || !ajourSelectedStreet || !ajourSelectedStatus){
+    showToast('Kies eerst campagne, bedeeldag, straat en status.', true);
+    return;
+  }
+  const ok=ajourSaveStatusForStreet(campId, dagId, ajourSelectedStreet, ajourSelectedStatus);
+  if(!ok) return;
+  ajourAddRecent(campId, dagId, ajourSelectedStreet, ajourSelectedStatus);
+  if(campId===getActiveCampagneId() && typeof renderStreets==='function') renderStreets();
+  if(typeof renderStratenTabel==='function') renderStratenTabel();
+  ajourRenderState();
+  ajourRenderRecent();
+  showToast('Status opgeslagen voor campagne en bedeeldag ✓');
+}
+function ajourSaveStatusForStreet(campId, dagId, straat, status){
+  if(!campId || !dagId || !straat || !status) return false;
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId && d.campagneId===campId);
+  if(!dag){ showToast('Bedeeldag hoort niet bij deze campagne.', true); return false; }
+  if(!dag.resultaten) dag.resultaten={};
+  dag.resultaten[straat]={...(typeof dag.resultaten[straat]==='object'?dag.resultaten[straat]:{}), status, bron:'ajourzetting', updatedAt:new Date().toISOString(), datum:new Date().toISOString().slice(0,10)};
+  saveDagen(dagen);
+  ajourSetCampagneStatus(campId, straat, status, dagId);
+  return true;
+}
+function ajourQuickSetStreet(straat, status){
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagId=document.getElementById('ajour-dag')?.value||'';
+  if(!campId || !dagId){ showToast('Kies eerst campagne en bedeeldag.', true); return; }
+  if(!ajourSaveStatusForStreet(campId, dagId, straat, status)) return;
+  ajourAddRecent(campId, dagId, straat, status);
+  if(campId===getActiveCampagneId() && typeof renderStreets==='function') renderStreets();
+  if(typeof renderStratenTabel==='function') renderStratenTabel();
+  ajourRenderState();
+  ajourRenderRecent();
+  showToast(`${straat}: ${ajourStatusLabel(status)} ✓`);
+}
+function ajourStratenVoorWijk(wijk){
+  const nw=ajourNorm(wijk);
+  return STREETS
+    .filter(s=>ajourNorm(STREET_TO_WIJK[s])===nw)
+    .sort((a,b)=>a.localeCompare(b,'nl-BE'));
+}
+function ajourSetWijkStatus(status){
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagId=document.getElementById('ajour-dag')?.value||'';
+  const wijk=document.getElementById('ajour-wijk')?.value||'';
+  if(!campId || !dagId || !wijk){ showToast('Kies eerst campagne, bedeeldag en wijk.', true); return; }
+  const straten=ajourStratenVoorWijk(wijk);
+  if(!straten.length){ showToast('Geen straten gevonden voor deze wijk.', true); return; }
+  if(!confirm(`${straten.length} straten in "${wijk}" op "${ajourStatusLabel(status)}" zetten?`)) return;
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId && d.campagneId===campId);
+  if(!dag){ showToast('Bedeeldag hoort niet bij deze campagne.', true); return; }
+  if(!dag.resultaten) dag.resultaten={};
+  const now=new Date().toISOString();
+  straten.forEach(straat=>{
+    dag.resultaten[straat]={...(typeof dag.resultaten[straat]==='object'?dag.resultaten[straat]:{}), status, bron:'ajourzetting-wijk', updatedAt:now, datum:now.slice(0,10)};
+    ajourSetCampagneStatus(campId, straat, status, dagId);
+  });
+  saveDagen(dagen);
+  ajourAddRecent(campId, dagId, `Wijk ${wijk} (${straten.length} straten)`, status);
+  if(campId===getActiveCampagneId() && typeof renderStreets==='function') renderStreets();
+  if(typeof renderStratenTabel==='function') renderStratenTabel();
+  ajourRenderState();
+  ajourRenderRecent();
+  showToast(`${straten.length} straten bijgewerkt ✓`);
+}
+function ajourAddRecent(campagneId, dagId, straat, status){
+  const recent=ls('vf_ajour_recent', []);
+  recent.unshift({campagneId, dagId, straat, status, ts:new Date().toISOString()});
+  lsSet('vf_ajour_recent', recent.slice(0,20));
+}
+function ajourRenderRecent(){
+  const el=document.getElementById('ajour-recent');
+  if(!el) return;
+  const recent=ls('vf_ajour_recent', []);
+  if(!recent.length){ el.innerHTML='<div style="color:#999;font-size:13px;">Nog geen recente invoer.</div>'; return; }
+  const camps=getCampagnes();
+  const dagen=getDagen();
+  el.innerHTML=recent.map(r=>{
+    const c=camps.find(x=>x.id===r.campagneId);
+    const d=dagen.find(x=>x.id===r.dagId);
+    const tijd=r.ts?new Date(r.ts).toLocaleString('nl-BE'):'';
+    const st=AJOUR_STATUSES[r.status]||{label:r.status,color:'#777'};
+    return `<div class="ajour-recent-row"><strong>${r.straat}</strong><br><span style="color:${st.color};font-weight:700;">${st.label}</span> · ${c?.naam||'campagne?'} · ${d?(d.datum+(d.naam?' - '+d.naam:'')):'dag?'}<br><span style="color:#999;">${tijd}</span></div>`;
+  }).join('');
+}
+function ajourRenderTelling(){
+  const el=document.getElementById('ajour-telling');
+  if(!el) return;
+  const dag=ajourDagById(document.getElementById('ajour-dag')?.value||'');
+  const counts={done:0,notdone:0,bezig:0,skip:0,missing:0};
+  if(dag?.resultaten){
+    Object.values(dag.resultaten).forEach(v=>{
+      const st=ajourResultStatus(v);
+      if(counts[st]!==undefined) counts[st]++;
+    });
+  }
+  el.innerHTML=Object.entries(counts).map(([st,n])=>`<div class="ajour-count" style="background:${AJOUR_STATUSES[st].color}22;color:${AJOUR_STATUSES[st].color};">${AJOUR_STATUSES[st].label}: ${n}</div>`).join('');
+}
+function ajourStatusButtons(straat, huidige){
+  return Object.keys(AJOUR_STATUSES).map(st=>`<button type="button" class="ajour-mini-status ${st}${huidige===st?' active':''}" onclick="ajourQuickSetStreet('${straat.replace(/'/g,"\\'")}','${st}')">${st==='done'?'Bedeeld':st==='notdone'?'Not done':st==='bezig'?'Bezig':st==='skip'?'Skip':'Missing'}</button>`).join('');
+}
+function ajourWijkActiesHtml(){
+  return `<div class="ajour-wijk-bulk" style="padding:9px 10px;background:#fff7f7;border-bottom:1px solid #f3d4d4;">
+    <div style="font-size:12px;font-weight:800;color:#b00020;margin-bottom:6px;">Volledige gekozen wijk op status zetten</div>
+    <div class="ajour-row-actions">
+      <button type="button" class="ajour-mini-status done" onclick="ajourSetWijkStatus('done')">Hele wijk bedeeld</button>
+      <button type="button" class="ajour-mini-status notdone" onclick="ajourSetWijkStatus('notdone')">Hele wijk not done</button>
+      <button type="button" class="ajour-mini-status bezig" onclick="ajourSetWijkStatus('bezig')">Hele wijk bezig</button>
+      <button type="button" class="ajour-mini-status skip" onclick="ajourSetWijkStatus('skip')">Hele wijk skip</button>
+      <button type="button" class="ajour-mini-status missing" onclick="ajourSetWijkStatus('missing')">Hele wijk missing</button>
+    </div>
+    <div style="font-size:11px;color:#777;margin-top:5px;">Werkt op alle straten van de wijk, ook als de zichtbare lijst door zoeken beperkt is.</div>
+  </div>`;
+}
+function ajourRenderWijkTabel(){
+  const el=document.getElementById('ajour-wijk-tabel');
+  const inline=document.getElementById('ajour-wijk-inline');
+  const countEl=document.getElementById('ajour-wijk-count');
+  const acties=document.getElementById('ajour-wijk-acties');
+  if(!el) return;
+  const campId=document.getElementById('ajour-campagne')?.value||'';
+  const dagId=document.getElementById('ajour-dag')?.value||'';
+  const wijk=document.getElementById('ajour-wijk')?.value||'';
+  if(!campId || !dagId || !wijk){
+    if(acties) acties.style.display='none';
+    if(inline){ inline.style.display='none'; inline.innerHTML=''; }
+    if(countEl) countEl.textContent='';
+    el.innerHTML='<div class="empty-table">Kies een campagne, bedeeldag en wijk.</div>';
+    return;
+  }
+  const dag=ajourDagById(dagId);
+  const alleStraten=ajourStratenVoorWijk(wijk);
+  const zoek=(document.getElementById('ajour-search')?.value||'').trim();
+  const nzoek=ajourNorm(zoek);
+  const straten=nzoek ? alleStraten.filter(s=>ajourNorm(s).includes(nzoek)) : alleStraten;
+  if(countEl) countEl.textContent=alleStraten.length ? (zoek ? `${straten.length} / ${alleStraten.length} straten in ${wijk}` : `${alleStraten.length} straten in ${wijk}`) : `Geen straten gevonden voor ${wijk}`;
+  if(!straten.length){
+    if(acties) acties.style.display=alleStraten.length ? 'block' : 'none';
+    if(inline){
+      inline.style.display=alleStraten.length ? 'block' : 'none';
+      inline.innerHTML=alleStraten.length ? `<div style="padding:10px 12px;background:#f4f6f8;border-bottom:1px solid #dde3ea;font-size:13px;font-weight:800;color:#2C5F8D;">${wijk} · 0 van ${alleStraten.length} straten zichtbaar</div>${ajourWijkActiesHtml()}<div class="empty-table">Geen straat in deze wijk gevonden voor deze zoekterm.</div>` : '';
+    }
+    el.innerHTML=zoek?'<div class="empty-table">Geen straat in deze wijk gevonden voor deze zoekterm.</div>':'<div class="empty-table">Geen straten gevonden voor deze wijk.</div>';
+    return;
+  }
+  if(acties) acties.style.display='block';
+  const html=`<table><thead><tr><th>Straat</th><th>Huidige status</th><th>Status zetten</th></tr></thead><tbody>${straten.map(s=>{
+    const st=ajourResultStatus(dag?.resultaten?.[s]);
+    return `<tr><td><strong>${s}</strong></td><td><span style="font-weight:800;color:${AJOUR_STATUSES[st].color};">${ajourStatusLabel(st)}</span></td><td><div class="ajour-row-actions">${ajourStatusButtons(s,st)}</div></td></tr>`;
+  }).join('')}</tbody></table>`;
+  el.innerHTML=html;
+  if(inline){
+    inline.style.display='block';
+    inline.innerHTML=`<div style="padding:10px 12px;background:#f4f6f8;border-bottom:1px solid #dde3ea;font-size:13px;font-weight:800;color:#2C5F8D;">${wijk} · ${zoek?straten.length+' van '+alleStraten.length:alleStraten.length} straten alfabetisch</div>${ajourWijkActiesHtml()}<div class="ajour-wijk-tabel" style="max-height:360px;overflow:auto;">${html}</div>`;
+  }
+}
+function ajourRenderStatusLijst(){
+  const el=document.getElementById('ajour-status-lijst');
+  if(!el) return;
+  const dag=ajourDagById(document.getElementById('ajour-dag')?.value||'');
+  const q=(document.getElementById('ajour-search')?.value||'').toLowerCase().trim();
+  if(!dag){ el.innerHTML='<div class="empty-table">Kies een bedeeldag.</div>'; return; }
+  const rows=Object.entries(dag.resultaten||{}).map(([straat,v])=>({straat,status:ajourResultStatus(v),updatedAt:typeof v==='object'?v.updatedAt:''}))
+    .filter(r=>!q || r.straat.toLowerCase().includes(q) || (STREET_TO_WIJK[r.straat]||'').toLowerCase().includes(q))
+    .sort((a,b)=>a.straat.localeCompare(b.straat,'nl-BE'));
+  if(!rows.length){ el.innerHTML='<div class="empty-table">Nog geen straten met status voor deze bedeeldag.</div>'; return; }
+  el.innerHTML=`<table><thead><tr><th>Straat</th><th>Wijk</th><th>Status</th><th>Laatst aangepast</th><th>Wijzigen</th></tr></thead><tbody>${rows.map(r=>{
+    const tijd=r.updatedAt?new Date(r.updatedAt).toLocaleString('nl-BE'):'—';
+    return `<tr><td><strong>${r.straat}</strong></td><td>${STREET_TO_WIJK[r.straat]||'—'}</td><td style="font-weight:800;color:${AJOUR_STATUSES[r.status].color};">${ajourStatusLabel(r.status)}</td><td style="color:#777;font-size:12px;">${tijd}</td><td><div class="ajour-row-actions">${ajourStatusButtons(r.straat,r.status)}</div></td></tr>`;
+  }).join('')}</tbody></table>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3143,6 +3759,59 @@ function pasOorsprongToeOpSelectie(){
   showToast('Oorsprong aangepast ✓');
 }
 
+function htmlEsc(v){
+  return String(v??'').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function saveVrijwKaart(id){
+  const veld=(naam)=>document.getElementById('vw-card-'+naam+'-'+id);
+  const vn=(veld('voornaam')?.value||'').trim();
+  const nm=(veld('naam')?.value||'').trim();
+  if(!vn||!nm){ showToast('Voornaam en naam zijn verplicht.',true); return; }
+  const list=getVrijw();
+  const i=list.findIndex(v=>v.id===id);
+  if(i<0){ showToast('Vrijwilliger niet gevonden.',true); return; }
+  list[i]={...list[i],
+    voornaam:vn,
+    naam:nm,
+    roepnaam:(veld('roepnaam')?.value||'').trim(),
+    gsm:(veld('gsm')?.value||'').trim(),
+    email:(veld('email')?.value||'').trim(),
+    taal:(veld('taal')?.value||''),
+    bron:(veld('bron')?.value||'manueel'),
+    foto:(veld('foto-data')?.value||list[i].foto||'')
+  };
+  saveVrijwData(list);
+  renderVrijwTabel();
+  updateKaartFilters();
+  showToast('Vrijwilliger opgeslagen ✓');
+}
+
+function setVrijwKaartFoto(id, input){
+  const file=input.files?.[0];
+  input.value='';
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('Kies een afbeeldingsbestand.',true); return; }
+  if(file.size>1024*1024*2){ showToast('Foto is te groot. Kies max. 2 MB.',true); return; }
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const data=String(reader.result||'');
+    const hidden=document.getElementById('vw-card-foto-data-'+id);
+    const wrap=document.getElementById('vw-card-foto-wrap-'+id);
+    if(hidden) hidden.value=data;
+    if(wrap) wrap.innerHTML=`<img class="vrijw-photo-preview" src="${data}" alt="Foto">`;
+  };
+  reader.onerror=()=>showToast('Foto kon niet gelezen worden.',true);
+  reader.readAsDataURL(file);
+}
+
+function clearVrijwKaartFoto(id){
+  const hidden=document.getElementById('vw-card-foto-data-'+id);
+  const wrap=document.getElementById('vw-card-foto-wrap-'+id);
+  if(hidden) hidden.value='';
+  if(wrap) wrap.innerHTML='<div class="vrijw-photo-placeholder">👤</div>';
+}
+
 function renderVrijwTabel(){
   const list=gefilterdeVrijw();
   const c=document.getElementById('vrijw-tabel-container');
@@ -3150,22 +3819,83 @@ function renderVrijwTabel(){
   if(aantalEl) aantalEl.textContent=list.length+' / '+getVrijw().length;
   if(!getVrijw().length){ c.innerHTML='<div class="empty-table">Nog geen vrijwilligers.</div>'; return; }
   if(!list.length){ c.innerHTML='<div class="empty-table">Geen vrijwilligers in deze selectie.</div>'; return; }
-  c.innerHTML=`<table class="data-table">
-    <thead><tr><th style="width:34px;text-align:center;"><input type="checkbox" onchange="vwSelecteerAlleGetoond(this.checked)" title="Alles aan/uit" style="width:16px;height:16px;cursor:pointer;"/></th><th>Naam</th><th>Roepnaam</th><th>GSM</th><th>Taal</th><th>Oorsprong</th><th>Toegewezen</th><th title="Ook wijkverantwoordelijke?">Ook WV?</th><th style="text-align:right;">Acties</th></tr></thead>
-    <tbody>${list.map(v=>`<tr>
-      <td style="text-align:center;"><input type="checkbox" ${vwGeselecteerd.has(v.id)?'checked':''} onchange="vwToggleSelectie('${v.id}',this.checked)" style="width:16px;height:16px;cursor:pointer;"/></td>
-      <td><strong>${v.voornaam} ${v.naam}</strong></td>
-      <td>${v.roepnaam||'—'}</td>
-      <td>${v.gsm?`<a href="https://wa.me/${v.gsm.replace(/[^0-9]/g,'')}" target="_blank" style="color:#25D366;font-weight:600;">📱 ${v.gsm}</a>`:'—'}</td>
-      <td style="font-size:12px;">${v.taal?`<span class="badge ${v.taal==='fr'?'badge-blue':'badge-green'}">${vwTaalLabel(v.taal)}</span>`:'<span style="color:#bbb;">—</span>'}</td>
-      <td style="font-size:11px;color:#555;">${vwBronLabel(v.bron)}</td>
-      <td style="font-size:12px;">${((v.wijken||[]).length?`<span class="badge badge-blue">${(v.wijken||[]).length} wijk(en)</span> `:'')+((v.straten||[]).length?`<span class="badge badge-green">${(v.straten||[]).length} straat/straten</span>`:'')||'<span style="color:#bbb;">—</span>'}</td>
-      <td style="text-align:center;"><input type="checkbox" ${isVrijwOokWV(v.id)?'checked':''} onchange="toggleVrijwAlsWV('${v.id}',this.checked)" title="Zet ook als wijkverantwoordelijke" style="width:18px;height:18px;cursor:pointer;"/></td>
-      <td><div class="actions">
-        <button class="btn-sm btn-edit" onclick="openVrijwForm('${v.id}')">✏️ Bewerken</button>
-        <button class="btn-sm btn-danger" onclick="deleteVrijw('${v.id}')">🗑️</button>
-      </div></td>
-    </tr>`).join('')}</tbody></table>`;
+  c.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e6edf5;background:#fff;">
+    <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#2C5F8D;cursor:pointer;">
+      <input type="checkbox" onchange="vwSelecteerAlleGetoond(this.checked)" title="Alles aan/uit" style="width:16px;height:16px;cursor:pointer;"/>
+      Alles aan/uit
+    </label>
+    <span style="font-size:12px;color:#777;">${list.length} kaartje(s)</span>
+  </div>
+  <div class="vrijw-card-grid">${list.map(v=>{
+    const id=v.id;
+    const naam=((v.voornaam||'')+' '+(v.naam||'')).trim()||'Naamloos';
+    const roep=v.roepnaam||'Geen roepnaam';
+    const tel=String(v.gsm||'').replace(/[^0-9]/g,'');
+    const wijken=(v.wijken||[]).length;
+    const straten=(v.straten||[]).length;
+    const geselecteerd=vwGeselecteerd.has(id);
+    const isWv=isVrijwOokWV(id);
+    const foto=String(v.foto||'');
+    return `<article class="vrijw-card ${geselecteerd?'selected':''}">
+      <div class="vrijw-card-top">
+        <div class="vrijw-card-title">
+          <strong>${htmlEsc(naam)}</strong>
+          <span>${htmlEsc(roep)}</span>
+        </div>
+        <label class="vrijw-card-check">
+          <input type="checkbox" ${geselecteerd?'checked':''} onchange="vwToggleSelectie('${id}',this.checked); this.closest('.vrijw-card').classList.toggle('selected', this.checked);"/>
+          Selecteer
+        </label>
+      </div>
+      <div class="vrijw-photo-row">
+        <div id="vw-card-foto-wrap-${id}">${foto?`<img class="vrijw-photo-preview" src="${htmlEsc(foto)}" alt="Foto">`:'<div class="vrijw-photo-placeholder">👤</div>'}</div>
+        <div class="vrijw-photo-tools">
+          <label>Foto opladen<input type="file" accept="image/*" onchange="setVrijwKaartFoto('${id}',this)"/></label>
+          <button class="btn-sm btn-edit" type="button" onclick="clearVrijwKaartFoto('${id}')" style="width:max-content;background:#fff;color:#c8102e;">Foto wissen</button>
+          <span>Wordt opgeslagen wanneer je op Opslaan klikt.</span>
+        </div>
+        <input id="vw-card-foto-data-${id}" type="hidden" value="${htmlEsc(foto)}"/>
+      </div>
+      <div class="vrijw-mini-form">
+        <label>Voornaam<input id="vw-card-voornaam-${id}" type="text" value="${htmlEsc(v.voornaam)}"/></label>
+        <label>Naam<input id="vw-card-naam-${id}" type="text" value="${htmlEsc(v.naam)}"/></label>
+        <label>Roepnaam<input id="vw-card-roepnaam-${id}" type="text" value="${htmlEsc(v.roepnaam)}"/></label>
+        <label>GSM<input id="vw-card-gsm-${id}" type="tel" value="${htmlEsc(v.gsm)}"/></label>
+        <label class="wide">E-mail<input id="vw-card-email-${id}" type="email" value="${htmlEsc(v.email)}"/></label>
+        <label>Taal<select id="vw-card-taal-${id}">
+          <option value="" ${!v.taal?'selected':''}>Onbekend</option>
+          <option value="nl" ${v.taal==='nl'?'selected':''}>Nederlands</option>
+          <option value="fr" ${v.taal==='fr'?'selected':''}>Français</option>
+        </select></label>
+        <label>Oorsprong<select id="vw-card-bron-${id}">
+          <option value="manueel" ${(v.bron||'manueel')==='manueel'?'selected':''}>Manueel</option>
+          <option value="excel_algemeen" ${(v.bron||'manueel')==='excel_algemeen'?'selected':''}>Excel Algemeen</option>
+          <option value="excel_ansje" ${(v.bron||'manueel')==='excel_ansje'?'selected':''}>Excel Ansje</option>
+        </select></label>
+      </div>
+      <div class="vrijw-card-meta">
+        ${v.taal?`<span class="badge ${v.taal==='fr'?'badge-blue':'badge-green'}">${vwTaalLabel(v.taal)}</span>`:'<span class="badge badge-gray">Taal onbekend</span>'}
+        <span class="badge badge-amber">${vwBronLabel(v.bron)}</span>
+        ${wijken?`<span class="badge badge-blue">${wijken} wijk(en)</span>`:''}
+        ${straten?`<span class="badge badge-green">${straten} straat/straten</span>`:''}
+        ${(!wijken&&!straten)?'<span style="font-size:11px;color:#999;">Nog geen vaste toewijzing</span>':''}
+      </div>
+      <div class="vrijw-card-actions">
+        <div class="left">
+          <label class="vrijw-wv-toggle" title="Zet ook als wijkverantwoordelijke">
+            <input type="checkbox" ${isWv?'checked':''} onchange="toggleVrijwAlsWV('${id}',this.checked)"/>
+            Ook WV
+          </label>
+          ${tel?`<a class="btn-sm btn-whatsapp" href="https://wa.me/${tel}" target="_blank" style="text-decoration:none;">📱 WhatsApp</a>`:''}
+        </div>
+        <div class="right">
+          <button class="btn-sm btn-success" onclick="saveVrijwKaart('${id}')">💾 Opslaan</button>
+          <button class="btn-sm btn-edit" onclick="openVrijwForm('${id}')" title="Wijken en straten bewerken">✏️ Details</button>
+          <button class="btn-sm btn-danger" onclick="deleteVrijw('${id}')">🗑️</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('')}</div>`;
   _vwUpdateSelTeller();
   vertaalAlsFR();
 }
@@ -3179,30 +3909,208 @@ function openNieuwedag(){
     setTimeout(()=>{ document.querySelector('.main-tab[data-tab="campagne"]')?.click(); }, 600);
     return;
   }
-  if(getVrijw().length===0 && getWVs().length===0){
-    showToast('Voeg eerst vrijwilligers of wijkverantwoordelijken toe.',true);
-    setTimeout(()=>{ document.querySelector('.main-tab[data-tab="vrijwilligers"]')?.click(); }, 600);
-    return;
-  }
   document.getElementById('dag-datum').value=new Date().toISOString().slice(0,10);
   document.getElementById('dag-naam').value='';
   document.getElementById('dag-notities').value='';
+  renderDagVrijwilligersPicker([]);
   openModal('modal-nieuwedag');
+}
+
+function openNieuwedagVoorCampagne(campagneId){
+  if(!campagneId){ showToast('Kies eerst een campagne.',true); return; }
+  if(getActiveCampagneId()!==campagneId){
+    setActiveCampagneId(campagneId);
+    refreshAllesVoorCampagne();
+  }
+  openNieuwedag();
 }
 
 function saveDag(){
   const datum=document.getElementById('dag-datum').value;
   if(!datum){ showToast('Datum is verplicht.',true); return; }
   const dagen=getDagen();
-  dagen.unshift({id:uid(),campagneId:getActiveCampagneId(),datum,naam:document.getElementById('dag-naam').value.trim(),notities:document.getElementById('dag-notities').value.trim(),status:'voorbereiding',created:Date.now(),toewijzingen:{},resultaten:{}});
-  saveDagen(dagen); closeModal('modal-nieuwedag'); renderDagLijst(); showToast('Bedeeldag aangemaakt ✓');
+  dagen.unshift({id:uid(),campagneId:getActiveCampagneId(),datum,naam:document.getElementById('dag-naam').value.trim(),notities:document.getElementById('dag-notities').value.trim(),vrijwilligerIds:getDagVrijwilligerIds(),status:'voorbereiding',created:Date.now(),toewijzingen:{},resultaten:{}});
+  saveDagen(dagen); closeModal('modal-nieuwedag'); renderDagLijst(); renderCampagneTab(); if(typeof initAjourTab==='function')initAjourTab(); showToast('Bedeeldag aangemaakt ✓');
+}
+
+const dagHelperState={new:[],edit:[],editDagId:null,matches:{new:[],edit:[]},active:{new:-1,edit:-1}};
+
+function renderDagVrijwilligersPicker(selectedIds=[]){
+  dagHelperState.new=[...(selectedIds||[])];
+  const search=document.getElementById('dag-helper-search');
+  if(search) search.value='';
+  dagHelperRender('new');
+}
+
+function getDagVrijwilligerIds(){
+  return [...dagHelperState.new];
+}
+
+function dagHelperEls(mode='new'){
+  const pref=mode==='edit'?'edit-dag-helper':'dag-helper';
+  return {
+    search:document.getElementById(pref+'-search'),
+    results:document.getElementById(pref+'-results'),
+    selected:document.getElementById(pref+'-selected'),
+    count:document.getElementById(pref+'-count')
+  };
+}
+
+function dagHelperRender(mode='new'){
+  const els=dagHelperEls(mode);
+  const ids=dagHelperState[mode]||[];
+  if(els.count) els.count.textContent=ids.length+' geselecteerd';
+  if(!els.selected) return;
+  if(!ids.length){
+    els.selected.innerHTML='<div class="helper-empty">Nog geen helpers toegevoegd.</div>';
+  }else{
+    els.selected.innerHTML=ids.map(id=>{
+      const v=getVrijw().find(x=>x.id===id);
+      return `<span class="helper-chip">${htmlEsc(vrijwilligerNaam(v))}<button type="button" onclick="dagHelperRemove('${htmlEsc(id)}','${mode}')" title="Verwijderen">×</button></span>`;
+    }).join('');
+  }
+}
+
+function dagHelperSearch(mode='new'){
+  const els=dagHelperEls(mode);
+  if(!els.results || !els.search) return;
+  const q=ajourNorm(els.search.value);
+  const selected=new Set(dagHelperState[mode]||[]);
+  if(!getVrijw().length){
+    els.results.innerHTML='<div class="helper-result"><div class="helper-result-main"><strong>Nog geen vrijwilligers</strong><span>Voeg eerst vrijwilligers toe in het tabblad Vrijwilligers.</span></div></div>';
+    els.results.classList.add('show');
+    return;
+  }
+  if(!q){ els.results.classList.remove('show'); return; }
+  const matches=getVrijw()
+    .filter(v=>!selected.has(v.id))
+    .filter(v=>[vrijwilligerNaam(v),v.roepnaam,v.voornaam,v.naam,v.gsm,v.email].some(x=>ajourNorm(x).includes(q)))
+    .sort((a,b)=>vrijwilligerNaam(a).localeCompare(vrijwilligerNaam(b),'nl-BE'))
+    .slice(0,8);
+  dagHelperState.matches[mode]=matches.map(v=>v.id);
+  dagHelperState.active[mode]=-1;
+  if(!matches.length){
+    els.results.innerHTML='<div class="helper-result"><div class="helper-result-main"><strong>Geen resultaat</strong><span>Probeer roepnaam, achternaam of gsm.</span></div></div>';
+    els.results.classList.add('show');
+    return;
+  }
+  els.results.innerHTML=matches.map(v=>{
+    const meta=[v.gsm||'',vwTaalLabel(v.taal)].filter(Boolean).join(' · ');
+    return `<div class="helper-result" onmousedown="dagHelperAdd('${htmlEsc(v.id)}','${mode}')">
+      <div class="helper-result-main"><strong>${htmlEsc(vrijwilligerNaam(v))}</strong><span>${htmlEsc(meta||vwBronLabel(v.bron))}</span></div>
+      <button type="button" class="helper-add-btn">+</button>
+    </div>`;
+  }).join('');
+  els.results.classList.add('show');
+}
+
+function dagHelperKey(e, mode='new'){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const first=dagHelperState.matches[mode]?.[0];
+    if(first) dagHelperAdd(first, mode);
+  }else if(e.key==='Escape'){
+    dagHelperEls(mode).results?.classList.remove('show');
+  }
+}
+
+function dagHelperAdd(id, mode='new'){
+  if(!id) return;
+  const arr=dagHelperState[mode]||[];
+  if(!arr.includes(id)) arr.push(id);
+  dagHelperState[mode]=arr;
+  const els=dagHelperEls(mode);
+  if(els.search) els.search.value='';
+  if(els.results) els.results.classList.remove('show');
+  dagHelperRender(mode);
+  setTimeout(()=>els.search?.focus(),0);
+}
+
+function dagHelperRemove(id, mode='new'){
+  dagHelperState[mode]=(dagHelperState[mode]||[]).filter(x=>x!==id);
+  dagHelperRender(mode);
+}
+
+function openDagHelpers(dagId){
+  const dag=getDagen().find(d=>d.id===dagId);
+  if(!dag){ showToast('Bedeeldag niet gevonden.',true); return; }
+  dagHelperState.editDagId=dagId;
+  dagHelperState.edit=[...(dag.vrijwilligerIds||[])];
+  const title=document.getElementById('dag-helpers-title');
+  const ctx=document.getElementById('dag-helpers-context');
+  if(title) title.textContent='Helpers beheren';
+  if(ctx) ctx.innerHTML=`<strong>${htmlEsc(dag.datum)}</strong>${dag.naam?' · '+htmlEsc(dag.naam):''}`;
+  const search=document.getElementById('edit-dag-helper-search');
+  if(search) search.value='';
+  dagHelperRender('edit');
+  openModal('modal-dag-helpers');
+  setTimeout(()=>search?.focus(),100);
+}
+
+function saveDagHelpers(){
+  const dagId=dagHelperState.editDagId;
+  const dagen=getDagen();
+  const dag=dagen.find(d=>d.id===dagId);
+  if(!dag){ showToast('Bedeeldag niet gevonden.',true); return; }
+  dag.vrijwilligerIds=[...dagHelperState.edit];
+  saveDagen(dagen);
+  closeModal('modal-dag-helpers');
+  renderDagLijst();
+  renderCampagneTab();
+  showToast('Helpers opgeslagen ✓');
+}
+
+function getCampagneHelperIds(campagneId){
+  const ids=new Set();
+  getDagen().filter(d=>(d.campagneId||null)===campagneId).forEach(d=>(d.vrijwilligerIds||[]).forEach(id=>ids.add(id)));
+  const bestaande=new Set(getVrijw().map(v=>v.id));
+  return Array.from(ids).filter(id=>bestaande.has(id));
+}
+
+function toonCampagneBedanklijst(campagneId){
+  const camp=getCampagnes().find(c=>c.id===campagneId);
+  const ids=getCampagneHelperIds(campagneId);
+  const body=document.getElementById('bedanklijst-body');
+  if(!body) return;
+  const vrijwilligers=getVrijw();
+  if(!ids.length){
+    body.innerHTML='<div class="empty-table">Nog geen vrijwilligers gekoppeld aan bedeeldagen in deze campagne.</div>';
+    openModal('modal-bedanklijst');
+    return;
+  }
+  const dagen=getDagen().filter(d=>(d.campagneId||null)===campagneId);
+  const standaard=`Dag {naam}, bedankt om mee te helpen met ${camp?.naam||'de campagne'}!`;
+  body.innerHTML=`<p style="font-size:13px;color:#555;margin-bottom:10px;">${ids.length} vrijwilliger(s) hielpen mee aan <strong>${htmlEsc(camp?.naam||'deze campagne')}</strong>.</p>
+    <textarea id="bedank-bericht-template" rows="3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;margin-bottom:10px;">${htmlEsc(standaard)}</textarea>
+    <div style="font-size:11px;color:#777;margin-bottom:10px;">Gebruik <strong>{naam}</strong> in het bericht. WhatsApp opent per vrijwilliger apart.</div>
+    <div style="display:grid;gap:8px;">${ids.map(id=>{
+      const v=vrijwilligers.find(x=>x.id===id);
+      const naam=vrijwilligerNaam(v);
+      const dagenNamen=dagen.filter(d=>(d.vrijwilligerIds||[]).includes(id)).map(d=>d.datum+(d.naam?' - '+d.naam:'')).join(', ');
+      const tel=String(v?.gsm||'').replace(/[^0-9]/g,'');
+      return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid #e6edf5;border-radius:8px;padding:9px 10px;">
+        <div><strong>${htmlEsc(naam)}</strong><br><span style="font-size:11px;color:#777;">${htmlEsc(dagenNamen||'Bedeeldag onbekend')}</span></div>
+        ${tel?`<button class="btn-sm btn-success" onclick="openBedankWhatsapp('${tel}','${htmlEsc(naam).replace(/'/g,"\\'")}')">WhatsApp</button>`:'<span style="font-size:11px;color:#999;">Geen GSM</span>'}
+      </div>`;
+    }).join('')}</div>`;
+  openModal('modal-bedanklijst');
+}
+
+function openBedankWhatsapp(tel, naam){
+  const tpl=document.getElementById('bedank-bericht-template')?.value||'Dag {naam}, bedankt!';
+  const msg=tpl.replaceAll('{naam}', naam);
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
 }
 
 function deleteDag(id){
   if(!confirm('Bedeeldag verwijderen? Alle resultaten gaan verloren.')) return;
   saveDagen(getDagen().filter(d=>d.id!==id));
   if(activeDagId===id){ activeDagId=null; updateActiveDagInfo(); }
-  renderDagLijst(); showToast('Bedeeldag verwijderd');
+  renderDagLijst();
+  renderCampagneTab();
+  if(typeof initAjourTab==='function') initAjourTab();
+  if(typeof renderStreets==='function') renderStreets();
+  showToast('Bedeeldag verwijderd');
 }
 
 function setActiveDag(id){
@@ -3952,6 +4860,7 @@ const LBL = {
   'Bezig': {nl:'Bezig', fr:'En cours'},
 };
 function t(key){ const e=LBL[key]; return e ? e[huidigeTaal] : key; }
+function ui(nl, fr){ return huidigeTaal==='fr' ? fr : nl; }
 const I18N_FR = {"+ Nieuwe WV toevoegen": "+ Ajouter un RQ", "+ Nieuwe bedeeldag": "+ Nouveau jour de distribution", "+ Nieuwe campagne": "+ Nouvelle campagne", "+ Nieuwe vrijwilliger": "+ Nouveau bénévole", "+ Toevoegen": "+ Ajouter", "+ Voeg toe": "+ Ajouter", "Aan de slag 🚀": "C'est parti 🚀", "Aanmaken": "Créer", "Acties": "Actions", "Actieve bedeeldag": "Jour de distribution actif", "Actieve campagne": "Campagne active", "Activeren": "Activer", "Alle straten": "Toutes les rues", "Alles deselecteren": "Tout désélectionner", "Alles selecteren": "Tout sélectionner", "Alles: behoud App": "Tout : garder l'app", "Alles: neem Excel": "Tout : prendre Excel", "Annuleren": "Annuler", "Bedeeld": "Distribué", "Bedeeldagen": "Jours de distribution", "Begrepen": "Compris", "Begrepen 👍": "Compris 👍", "Beheer bedeeldagen: maak een nieuwe dag aan, wijs vrijwilligers en straten toe, importeer resultaten en genereer rapporten.": "Gérez les jours de distribution : créez un nouveau jour, attribuez des bénévoles et des rues, importez les résultats et générez des rapports.", "Beheer de wijkverantwoordelijken: contactgegevens, toegewezen wijken en extra straten buiten hun wijk.": "Gérez les responsables de quartier : coordonnées, quartiers attribués et rues supplémentaires hors quartier.", "Berichtsjabloon (aanpasbaar)": "Modèle de message (modifiable)", "Campagne": "Campagne", "Datum": "Date", "Datum *": "Date *", "De globale status van elke straat — de bron van waarheid over de hele bedeling heen. Manueel aanpasbaar en bijgewerkt via Excel-import.": "Le statut global de chaque rue — la référence pour toute la distribution. Modifiable manuellement et mis à jour via l'import Excel.", "E-mailadres": "Adresse e-mail", "Een campagne groepeert bedeeldagen en heeft een eigen straten-status. Elke campagne start vers — bedeeldagen en status horen bij de gekozen campagne.": "Une campagne regroupe les jours de distribution et possède son propre statut de rues. Chaque campagne démarre à neuf — les jours et le statut appartiennent à la campagne choisie.", "Extra losse straten (bovenop de wijken)": "Rues supplémentaires (en plus des quartiers)", "Filter": "Filtre", "Flyers (totaal · nog)": "Flyers (total · restant)", "GSM": "GSM", "GSM (WhatsApp)": "GSM (WhatsApp)", "GSM (WhatsApp) *": "GSM (WhatsApp) *", "Gekoppelde vrijwilligers (deze vallen onder deze WV)": "Bénévoles liés (sous la responsabilité de ce RQ)", "Kleuren tonen volgens:": "Afficher les couleurs selon :", "Laatst gewijzigd": "Dernière modification", "Legende": "Légende", "Losse straten": "Rues individuelles", "Losse straten (eigen initiatief)": "Rues individuelles (initiative propre)", "Naam": "Nom", "Naam *": "Nom *", "Naam / omschrijving": "Nom / description", "Nieuwe campagne": "Nouvelle campagne", "Nieuwe vrijwilliger": "Nouveau bénévole", "Nieuwe wijkverantwoordelijke": "Nouveau responsable de quartier", "Notitie": "Note", "Notitie / vrij veld": "Note / champ libre", "Notities": "Notes", "Ontvanger": "Destinataire", "Overzicht wijkverantwoordelijken": "Aperçu des responsables de quartier", "Per vrijwilliger": "Par bénévole", "Pool van alle vrijwilligers die ooit meededen. Per bedeeldag selecteer je wie er die dag aanwezig is.": "Liste de tous les bénévoles ayant déjà participé. Pour chaque jour, sélectionnez qui est présent.", "Roepnaam": "Surnom", "Samenvatting": "Résumé", "Sluiten": "Fermer", "Status": "Statut", "Straat": "Rue", "Straten": "Rues", "Toegewezen": "Attribué", "Toegewezen straten": "Rues attribuées", "Toegewezen wijken": "Quartiers attribués", "Toegewezen wijken (vast — bv. eigen buurt)": "Quartiers attribués (fixes — p. ex. son propre quartier)", "Typ straatnaam...": "Tapez le nom de la rue...", "Voornaam *": "Prénom *", "Voortgang": "Progression", "Voorvertoning": "Aperçu", "Vrije tekst — bv. doelstelling, budget, oplagedetails, contactpersonen...": "Texte libre — p. ex. objectif, budget, détails du tirage, personnes de contact...", "Vrijwilliger": "Bénévole", "Vrijwilligers": "Bénévoles", "Vrijwilligerspool": "Liste de bénévoles", "WV": "RQ", "Wijk": "Quartier", "Wijken": "Quartiers", "Zoek straat": "Rechercher une rue", "Zoeken...": "Rechercher...", "alle getoonde → bedeeld": "tous les affichés → distribué", "alle getoonde → nog te doen": "tous les affichés → à faire", "bv. Gemeenteraadsverkiezingen 2024": "p. ex. Élections communales 2024", "Bv. Lente 2025": "P. ex. Printemps 2025", "± bussen": "± boîtes", "⚠️ Conflicten bij import": "⚠️ Conflits lors de l'import", "✏️ Bewerken": "✏️ Modifier", "✏️ Straten kiezen": "✏️ Choisir les rues", "✓ Keuzes toepassen": "✓ Appliquer les choix", "❓ Hoe werkt de Folderkaart?": "❓ Comment fonctionne la carte ?", "❓ Uitleg": "❓ Aide", "🎯 Campagne": "🎯 Campagne", "👋 Welkom bij de Vilvoorde Folderkaart": "👋 Bienvenue sur la carte de distribution de Vilvorde", "👤 Wijkverantwoordelijken": "👤 Responsables de quartier", "👤 Wijkverantwoordelijken (WV)": "👤 Responsables de quartier (RQ)", "👥 Toewijzingen beheren": "👥 Gérer les attributions", "💡 Goed om te weten": "💡 Bon à savoir", "💾 Offline opslaan": "💾 Enregistrer hors ligne", "💾 Opslaan": "💾 Enregistrer", "📄 Genereren &amp; afdrukken": "📄 Générer &amp; imprimer", "📄 Rapport": "📄 Rapport", "📄 Rapport genereren": "📄 Générer le rapport", "📅 Bedeeldagen": "📅 Jours de distribution", "📅 Nieuwe bedeeldag aanmaken": "📅 Créer un nouveau jour de distribution", "📋 Straten & Wijken": "📋 Rues & Quartiers", "📋 Straten &amp; Wijken": "📋 Rues &amp; Quartiers", "📤 Alle Excels genereren": "📤 Générer tous les Excels", "📤 Back-up herstellen": "📤 Restaurer la sauvegarde", "📤 Excel importeren": "📤 Importer Excel", "📥 Back-up maken": "📥 Créer une sauvegarde", "📥 Excel": "📥 Excel", "📥 Excel downloaden": "📥 Télécharger Excel", "📥 Excels importeren": "📥 Importer les Excels", "📥 Exporteer lijst": "📥 Exporter la liste", "📥 Importeren": "📥 Importer", "📬 Bussen schatten": "📬 Estimer les boîtes", "📱 Openen in WhatsApp": "📱 Ouvrir dans WhatsApp", "📱 WhatsApp": "📱 WhatsApp", "📱 WhatsApp bericht voorbereiden": "📱 Préparer un message WhatsApp", "🔄 Herlaad": "🔄 Recharger", "🔎 Typ een straatnaam...": "🔎 Tapez le nom de la rue...", "🔎 Zoek of kies een straat...": "🔎 Rechercher ou choisir une rue...", "🗺️ Kaart": "🗺️ Carte", "🗺️ Op kaart": "🗺️ Sur la carte", "🙋 Vrijwilligers": "🙋 Bénévoles", "🙋 Vrijwilligers (Bedelers)": "🙋 Bénévoles (Distributeurs)", "Alle wijken": "Tous les quartiers", "Alle vrijwilligers": "Tous les bénévoles", "Alle WV": "Tous les RQ", "Alle statussen": "Tous les statuts", "Nog te doen": "À faire", "Bezig": "En cours", "Bedeeld": "Distribué", "Overgeslagen": "Ignoré", "Niet gevonden": "Introuvable", "Niet gevonden in OSM": "Introuvable dans OSM", "Selecteer een vrijwilliger...": "Sélectionnez un bénévole...", "Selecteer een wijk...": "Sélectionnez un quartier...", "Selecteer een wijk om toe te voegen...": "Sélectionnez un quartier à ajouter...", "Selecteer een straat...": "Sélectionnez une rue...", "Vrijwilliger kiezen...": "Choisir un bénévole...", "WV koppelen (optioneel)...": "Lier un RQ (optionnel)...", "📋 Globale status (alle bedeeldagen)": "📋 Statut global (tous les jours)", "📅 Actieve bedeeldag": "📅 Jour de distribution actif", "Status": "Statut", "Notitie": "Note", "Notities": "Notes", "Totaal straten": "Total rues", "Toegewezen": "Attribué", "%": "%", "Nog geen bedeeldagen aangemaakt.": "Aucun jour de distribution créé.", "Nog geen vrijwilligers.": "Aucun bénévole.", "Nog geen vrijwilligers toegevoegd.": "Aucun bénévole ajouté.", "Nog geen wijkverantwoordelijken.": "Aucun responsable de quartier.", "Nog geen wijkverantwoordelijken toegevoegd.": "Aucun responsable de quartier ajouté.", "Nog geen vrijwilligers toegewezen.": "Aucun bénévole attribué.", "Geen straten gevonden.": "Aucune rue trouvée.", "Geen bedeeldag geselecteerd.": "Aucun jour de distribution sélectionné.", "Geen bedeeldag actief": "Aucun jour de distribution actif", "Laad een bedeeldag om straten te zien.": "Chargez un jour de distribution pour voir les rues.", "Bedeeld (done)": "Distribué (done)", "Annuleren": "Annuler", "Statustabel alle straten": "Tableau de statut de toutes les rues", "Alle straten": "Toutes les rues", "Actieve bedeeldag": "Jour de distribution actif", "straten getoond": "rues affichées", "straten totaal": "rues au total", "bussen ingeladen (globaal)": "boîtes chargées (global)", "Bussen schatten": "Estimer les boîtes", "Geen straten — klik 🔄 Herlaad": "Aucune rue — cliquez 🔄 Recharger", "Geen straten op kaart": "Aucune rue sur la carte", "straten getoond": "rues affichées", "Ook WV?": "Aussi RQ ?"};
 // Omgekeerd woordenboek (FR -> NL) om terug te kunnen schakelen
 const I18N_NL = Object.fromEntries(Object.entries(I18N_FR).map(([nl,fr])=>[fr,nl]));
@@ -4000,9 +4909,9 @@ function toonTaalBlokken(naar){
 function vertaalAlsFR(){ if(typeof huidigeTaal!=='undefined' && huidigeTaal==='fr'){ try{vertaalDOM('fr');}catch(e){} } }
 function setTaal(naar){
   if(naar===huidigeTaal) return;
+  huidigeTaal=naar;
   vertaalDOM(naar);
   toonTaalBlokken(naar);
-  huidigeTaal=naar;
   // Knop-label bijwerken
   const btn=document.getElementById('taal-knop');
   if(btn) btn.textContent = naar==='fr' ? '🇳🇱 NL' : '🇫🇷 FR';
@@ -4072,14 +4981,15 @@ function saveCampagne(){
 }
 function deleteCampagne(id){
   const camps=getCampagnes();
-  if(camps.length<=1){ showToast('Er moet minstens één campagne blijven.',true); return; }
   const c=camps.find(x=>x.id===id);
   if(!confirm(`Campagne "${c?.naam}" verwijderen?\n\nDe bedeeldagen en straten-status van deze campagne gaan verloren. Maak eerst een back-up als je die wil bewaren.`)) return;
   // Verwijder campagne, haar status-sleutel en haar bedeeldagen
-  saveCampagnes(camps.filter(x=>x.id!==id));
+  const resterend=camps.filter(x=>x.id!==id);
+  saveCampagnes(resterend);
   try{ localStorage.removeItem('vf_status_'+id); }catch(e){}
   saveDagen(getDagen().filter(d=>d.campagneId!==id));
-  if(getActiveCampagneId()===id) setActiveCampagneId(getCampagnes()[0].id);
+  if(activeDagId && !getDagen().some(d=>d.id===activeDagId)){ activeDagId=null; }
+  if(getActiveCampagneId()===id) setActiveCampagneId(resterend[0]?.id||null);
   renderCampagneTab();
   refreshAllesVoorCampagne();
   showToast('Campagne verwijderd');
@@ -4098,6 +5008,7 @@ function refreshAllesVoorCampagne(){
   if(typeof renderStreets==='function') renderStreets();
   if(typeof renderDagLijst==='function') renderDagLijst();
   if(typeof renderStratenTabel==='function') renderStratenTabel();
+  if(typeof initAjourTab==='function') initAjourTab();
   if(typeof updateActiveDagInfo==='function') updateActiveDagInfo();
 }
 // Vul de campagne-dropdown op de kaart en markeer de actieve
@@ -4147,37 +5058,114 @@ function vulCampagneDropdown(){
   const camps=getCampagnes(); const act=getActiveCampagneId();
   sel.innerHTML=camps.map(c=>`<option value="${c.id}"${c.id===act?' selected':''}>${c.naam}</option>`).join('');
 }
+function campagnePersoonNaam(id){
+  if(!id) return '—';
+  const p=getWVs().find(w=>w.id===id)||getVrijw().find(v=>v.id===id);
+  return p ? vrijwilligerNaam(p) : '—';
+}
+function dagKortDatum(datum){
+  if(!datum) return ui('Geen datum','Pas de date');
+  const d=new Date(datum+'T00:00:00');
+  if(Number.isNaN(d.getTime())) return datum;
+  return d.toLocaleDateString(huidigeTaal==='fr'?'fr-BE':'nl-BE',{day:'2-digit',month:'short',year:'numeric'});
+}
+function dagDisplayNaam(dag){
+  const naam=String(dag?.naam||'').trim();
+  if(!naam || naam.toLowerCase()==='bedeeldag') return ui('Bedeeldag','Jour de distribution');
+  return naam;
+}
+function dagVisualState(dag){
+  const vals=Object.values(dag?.resultaten||{}).map(ajourResultStatus);
+  if(vals.some(v=>v==='bezig')) return 'bezig';
+  if(vals.length && vals.every(v=>v==='done' || v==='skip')) return 'done';
+  return '';
+}
+function helperChipsHtml(ids, max=3){
+  const clean=(ids||[]).filter(id=>getVrijw().some(v=>v.id===id));
+  if(!clean.length) return `<span class="helper-chip muted">${ui('Nog geen helpers','Aucun bénévole')}</span>`;
+  const shown=clean.slice(0,max).map(id=>`<span class="helper-chip">${htmlEsc(vrijwilligerNaam(getVrijw().find(v=>v.id===id)))}</span>`).join('');
+  return shown+(clean.length>max?`<span class="helper-chip muted">+${clean.length-max} ${ui('meer','de plus')}</span>`:'');
+}
 function renderCampagneTab(){
-  ensureCampagne();
   vulCampagneDropdown();
   const c=document.getElementById('campagne-tabel-container');
   if(!c) return;
   const camps=getCampagnes(); const act=getActiveCampagneId();
-  c.innerHTML=`<table class="data-table">
-    <thead><tr><th>Campagne</th><th>Campagneverantwoordelijke</th><th>Notitie</th><th>Bedeeldagen</th><th>Status</th><th style="text-align:right;">Acties</th></tr></thead>
-    <tbody>${camps.map(cm=>{
-      const dagen=getDagen().filter(d=>(d.campagneId||null)===cm.id).length;
+  if(!camps.length){
+    c.innerHTML='<div class="card"><div class="card-body"><div class="empty-table">Nog geen campagnes. Klik op <strong>+ Nieuwe campagne</strong> om te starten.</div></div></div>';
+    return;
+  }
+  c.innerHTML=`<div class="campaign-board">${camps.map(cm=>{
+      const dagen=getDagen().filter(d=>(d.campagneId||null)===cm.id);
       const isAct=cm.id===act;
-      // Zoek campver naam vanuit WV's of vrijwilligers
-      let campverNaam = '—';
-      if (cm.campver_id) {
-        const wv = getWVs().find(w => w.id === cm.campver_id);
-        const vw = !wv && getVrijw().find(v => v.id === cm.campver_id);
-        const p = wv || vw;
-        if (p) campverNaam = `<strong>${(p.roepnaam||p.voornaam||'').trim()} ${p.naam||''}</strong>`;
-      }
-      return `<tr style="${isAct?'background:#eef5fc;':''}">
-        <td><strong>${cm.naam}</strong>${isAct?' <span class="badge badge-blue">actief</span>':''}</td>
-        <td style="font-size:12px;">${campverNaam}</td>
-        <td style="font-size:12px;color:#666;max-width:220px;">${(cm.notitie||'').slice(0,80)||'—'}</td>
-        <td><span class="badge badge-gray">${dagen}</span></td>
-        <td>${isAct?'<span style="color:#2e7d32;font-size:12px;">in gebruik</span>':`<button class="btn-sm btn-edit" onclick="wisselCampagne('${cm.id}')">Activeren</button>`}</td>
-        <td><div class="actions">
-          <button class="btn-sm btn-edit" onclick="openCampagneForm('${cm.id}')">✏️</button>
-          <button class="btn-sm btn-danger" onclick="deleteCampagne('${cm.id}')">🗑️</button>
-        </div></td>
-      </tr>`;
-    }).join('')}</tbody></table>`;
+      const helperIds=getCampagneHelperIds(cm.id);
+      const s=getCampagneStats(cm.id,'');
+      const campverNaam=campagnePersoonNaam(cm.campver_id);
+      const sortedDays=dagen.slice().sort((a,b)=>String(a.datum||'').localeCompare(String(b.datum||'')));
+      const hasDays=sortedDays.length>0;
+      const dayCards=hasDays?sortedDays.map(d=>{
+        const helperCount=(d.vrijwilligerIds||[]).filter(id=>getVrijw().some(v=>v.id===id)).length;
+        const state=dagVisualState(d);
+        return `<article class="delivery-card ${state}">
+          <div class="delivery-card-top">
+            <div>
+              <div class="delivery-date">${htmlEsc(dagKortDatum(d.datum))}</div>
+              <div class="delivery-name">${htmlEsc(dagDisplayNaam(d))}</div>
+            </div>
+            <span class="delivery-helper-count">${helperCount} ${ui(helperCount===1?'helper':'helpers', helperCount===1?'bénévole':'bénévoles')}</span>
+          </div>
+          <div class="helper-chip-row">${helperChipsHtml(d.vrijwilligerIds||[],3)}</div>
+          <div class="delivery-actions">
+            <button class="btn-sm btn-edit" onclick="openAjourVoorDag('${cm.id}','${d.id}')" title="Naar à jour zetting">À jour</button>
+            <button class="btn-sm btn-edit" onclick="openDagHelpers('${d.id}')" title="${ui('Helpers beheren','Gérer les bénévoles')}">Helpers</button>
+            <button class="btn-sm btn-edit" onclick="setActiveDag('${d.id}')" title="${ui('Toon op kaart','Afficher sur la carte')}">${ui('Kaart','Carte')}</button>
+            <button class="btn-sm btn-danger" onclick="deleteDag('${d.id}')" title="${ui('Bedeeldag verwijderen','Supprimer le jour de distribution')}">🗑️</button>
+          </div>
+        </article>`;
+      }).join(''):`<article class="delivery-card empty">
+        <div>
+          <strong>${ui('Nog geen bedeeldagen','Aucun jour de distribution')}</strong>
+          <span style="font-size:12px;margin-left:8px;">${ui('Voeg de eerste bedeeldag toe aan deze campagne.','Ajoutez le premier jour de distribution à cette campagne.')}</span>
+        </div>
+      </article>`;
+      return `<section class="campaign-card ${isAct?'active':''}">
+        <div class="campaign-card-head">
+          <div>
+            <div class="campaign-title-row">
+              <h3>${htmlEsc(cm.naam)}</h3>
+              ${isAct?`<span class="badge badge-blue">${ui('Actief','Active')}</span>`:''}
+            </div>
+            <div class="campaign-meta">
+              <span><strong>${ui('Verantwoordelijke','Responsable')}:</strong> ${htmlEsc(campverNaam)}</span>
+              <span>${dagen.length} ${ui(dagen.length===1?'bedeeldag':'bedeeldagen', dagen.length===1?'jour de distribution':'jours de distribution')}</span>
+              <span>${helperIds.length} ${ui(helperIds.length===1?'unieke helper':'unieke helpers', helperIds.length===1?'bénévole unique':'bénévoles uniques')}</span>
+              ${cm.notitie?`<span><strong>${ui('Notitie','Note')}:</strong> ${htmlEsc(String(cm.notitie).slice(0,120))}</span>`:''}
+            </div>
+          </div>
+          <div class="campaign-actions">
+            ${isAct?'':`<button class="btn-sm btn-edit" onclick="wisselCampagne('${cm.id}')">${ui('Activeren','Activer')}</button>`}
+            <button class="btn-sm btn-success" onclick="openNieuwedagVoorCampagne('${cm.id}')" title="${ui('Bedeeldag toevoegen','Ajouter un jour de distribution')}">+ ${ui('Bedeeldag','Jour')}</button>
+            ${helperIds.length?`<button class="btn-sm btn-edit" onclick="toonCampagneBedanklijst('${cm.id}')">${ui('Bedanklijst','Liste de remerciement')}</button>`:''}
+            <button class="btn-sm btn-edit" onclick="openCampagneForm('${cm.id}')">${ui('Bewerken','Modifier')}</button>
+            <button class="btn-sm btn-danger" onclick="deleteCampagne('${cm.id}')">${ui('Verwijderen','Supprimer')}</button>
+          </div>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-section-title">
+            <span>${ui('Bedeeldagen','Jours de distribution')}</span>
+            <span>${sortedDays.length?sortedDays.length+' '+ui('gepland','prévu(s)'):ui('Geen dagen','Aucun jour')}</span>
+          </div>
+          <div class="delivery-grid ${hasDays?'':'empty'}">${dayCards}</div>
+          <div class="campaign-footer">
+            <div>
+              <div class="campaign-progress-label"><strong>${ui('Voortgang','Progression')}</strong><span>${s.pctDone}% ${ui('bedeeld','distribué')}</span></div>
+              <div class="campaign-progress"><div style="width:${s.pctDone}%;"></div></div>
+            </div>
+            <div class="campaign-stats">${s.done} ${ui('bedeeld','distribué')} · ${s.bezig} ${ui('bezig','en cours')}<br>${s.notdone} ${ui('niet gedaan','non fait')} · ${s.skip} ${ui('overgeslagen','ignoré')}</div>
+          </div>
+        </div>
+      </section>`;
+    }).join('')}</div>`;
   vertaalAlsFR();
 }
 
@@ -4561,6 +5549,7 @@ function exportStatusExcel(){
   safe(()=>{ loadAddrFromStorage(); }, 'loadAddrFromStorage');
   safe(renderCampagneTab, 'renderCampagneTab');
   safe(renderStratenTabel, 'renderStratenTabel');
+  safe(initAjourTab, 'initAjourTab');
   // search-listeners worden al in initMap gekoppeld
 
   // Geometrie laden (apart, mag falen zonder de UI te breken)
