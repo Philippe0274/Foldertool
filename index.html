@@ -932,29 +932,29 @@ header.app-header::after {
 
 /* ── VRIJWILLIGER KAARTJES ── */
 .vrijw-card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(255px, 1fr)); gap:12px; padding:14px; background:#f6f8fb; }
-.vrijw-card { background:#c8102e; border:1px solid #a80d26; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 3px rgba(26,46,64,.10); color:#fff; }
-.vrijw-card.selected { border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.32); }
+.vrijw-card { background:#B0BA99; border:1px solid #98a27f; border-left:5px solid #c8102e; border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 3px rgba(26,46,64,.10); color:#1f2933; }
+.vrijw-card.selected { border-color:#c8102e; border-left-color:#c8102e; box-shadow:0 0 0 2px rgba(200,16,46,.18); }
 .vrijw-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .vrijw-card-title { min-width:0; }
-.vrijw-card-title strong { display:block; font-size:14px; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.vrijw-card-title span { display:block; font-size:12px; color:rgba(255,255,255,.82); margin-top:2px; }
-.vrijw-card-check { display:flex; align-items:center; gap:5px; font-size:11px; color:#fff; white-space:nowrap; }
+.vrijw-card-title strong { display:block; font-size:14px; color:#1f2933; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.vrijw-card-title span { display:block; font-size:12px; color:#44503a; margin-top:2px; }
+.vrijw-card-check { display:flex; align-items:center; gap:5px; font-size:11px; color:#1f2933; white-space:nowrap; }
 .vrijw-card-check input { width:16px; height:16px; margin:0; cursor:pointer; }
-.vrijw-photo-row { display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.24); border-radius:8px; padding:8px; }
-.vrijw-photo-preview { width:58px; height:58px; border-radius:8px; object-fit:cover; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); flex-shrink:0; }
-.vrijw-photo-placeholder { width:58px; height:58px; border-radius:8px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.vrijw-photo-row { display:flex; gap:10px; align-items:center; background:rgba(255,255,255,.34); border:1px solid rgba(31,41,51,.14); border-radius:8px; padding:8px; }
+.vrijw-photo-preview { width:58px; height:58px; border-radius:8px; object-fit:cover; background:rgba(255,255,255,.55); border:1px solid rgba(31,41,51,.18); flex-shrink:0; }
+.vrijw-photo-placeholder { width:58px; height:58px; border-radius:8px; background:rgba(255,255,255,.55); border:1px solid rgba(31,41,51,.18); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
 .vrijw-photo-tools { display:flex; flex-direction:column; gap:6px; min-width:0; flex:1; }
 .vrijw-photo-tools label { display:inline-flex; align-items:center; justify-content:center; width:max-content; max-width:100%; padding:5px 9px; border-radius:5px; background:#fff; color:#c8102e; font-size:11px; font-weight:800; cursor:pointer; }
 .vrijw-photo-tools input { display:none; }
-.vrijw-photo-tools span { font-size:11px; color:rgba(255,255,255,.82); }
+.vrijw-photo-tools span { font-size:11px; color:#44503a; }
 .vrijw-mini-form { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.vrijw-mini-form label { display:flex; flex-direction:column; gap:3px; font-size:10px; font-weight:700; color:rgba(255,255,255,.86); text-transform:uppercase; letter-spacing:.2px; }
-.vrijw-mini-form input, .vrijw-mini-form select { width:100%; min-width:0; padding:6px 7px; border:1px solid rgba(255,255,255,.52); border-radius:6px; font-size:12px; font-family:inherit; background:#fff; color:#1a2e40; }
+.vrijw-mini-form label { display:flex; flex-direction:column; gap:3px; font-size:10px; font-weight:700; color:#314026; text-transform:uppercase; letter-spacing:.2px; }
+.vrijw-mini-form input, .vrijw-mini-form select { width:100%; min-width:0; padding:6px 7px; border:1px solid rgba(31,41,51,.22); border-radius:6px; font-size:12px; font-family:inherit; background:#fff; color:#1a2e40; }
 .vrijw-mini-form .wide { grid-column:1 / -1; }
 .vrijw-card-meta { display:flex; flex-wrap:wrap; gap:5px; align-items:center; min-height:20px; }
-.vrijw-card-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,.24); padding-top:9px; }
+.vrijw-card-actions { display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; align-items:center; border-top:1px solid rgba(31,41,51,.14); padding-top:9px; }
 .vrijw-card-actions .left, .vrijw-card-actions .right { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-.vrijw-wv-toggle { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:#fff; cursor:pointer; }
+.vrijw-wv-toggle { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:#1f2933; cursor:pointer; }
 .vrijw-wv-toggle input { width:16px; height:16px; margin:0; cursor:pointer; }
 @media(max-width:700px){ .vrijw-card-grid { grid-template-columns:1fr; padding:10px; } .vrijw-mini-form { grid-template-columns:1fr; } }
 
@@ -1486,6 +1486,14 @@ body.gebruiker-mode #gebruiker-bar { display:flex; }
               <option value="">— Onbekend / Inconnu —</option>
               <option value="nl">Nederlands</option>
               <option value="fr">Français</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Geslacht / Genre</label>
+            <select id="vw-geslacht">
+              <option value="x">— Onbekend / Inconnu —</option>
+              <option value="m">Man / Homme</option>
+              <option value="v">Vrouw / Femme</option>
             </select>
           </div>
         </div>
@@ -2117,6 +2125,8 @@ function vwBronLabel(b){ return VW_BRON_LABELS[b] || VW_BRON_LABELS.manueel; }
 // Taal van vrijwilliger (NL/FR), leeg = onbekend
 const VW_TAAL_LABELS = { nl:'Nederlands', fr:'Français' };
 function vwTaalLabel(t){ return VW_TAAL_LABELS[t] || '—'; }
+const VW_GESLACHT_LABELS = { m:'Man / Homme', v:'Vrouw / Femme', x:'Onbekend / Inconnu' };
+function vwGeslachtLabel(g){ return VW_GESLACHT_LABELS[g] || VW_GESLACHT_LABELS.x; }
 // Normaliseer vrije tekst uit Excel naar 'nl' / 'fr' / ''
 function normaliseerTaal(s){
   const x=String(s||'').toLowerCase().trim();
@@ -2124,6 +2134,13 @@ function normaliseerTaal(s){
   if(x.startsWith('n')||x.includes('ned')||x.includes('vla')||x.includes('dutch')) return 'nl';
   if(x.startsWith('f')||x.includes('fra')||x.includes('french')) return 'fr';
   return '';
+}
+function normaliseerGeslacht(s){
+  const x=String(s||'').toLowerCase().trim();
+  if(!x) return 'x';
+  if(['m','man','mann','male','homme','h'].includes(x) || x.includes('masc')) return 'm';
+  if(['v','vrouw','f','female','femme'].includes(x) || x.includes('fem')) return 'v';
+  return 'x';
 }
 function vrijwilligerNaam(v){
   if(!v) return 'Onbekende vrijwilliger';
@@ -3553,6 +3570,7 @@ function openVrijwForm(id=null){
   document.getElementById('vw-email').value=v?.email||'';
   document.getElementById('vw-bron').value=v?.bron||'manueel';
   document.getElementById('vw-taal').value=v?.taal||'';
+  document.getElementById('vw-geslacht').value=v?.geslacht||'x';
   document.getElementById('vw-edit-id').value=id||'';
   vwSelectedWijken = v?.wijken ? [...v.wijken] : [];
   vwSelectedStraten = v?.straten ? [...v.straten] : [];
@@ -3569,7 +3587,7 @@ function saveVrijw(){
   const gsm=document.getElementById('vw-gsm').value.trim();
   if(!vn||!nm){ showToast('Voornaam en naam zijn verplicht.',true); return; }
   const list=getVrijw();
-  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),bron:(document.getElementById('vw-bron')||{}).value||'manueel',taal:(document.getElementById('vw-taal')||{}).value||'',wijken:vwSelectedWijken,straten:vwSelectedStraten};
+  const obj={voornaam:vn,naam:nm,roepnaam:document.getElementById('vw-roepnaam').value.trim(),gsm,email:document.getElementById('vw-email').value.trim(),bron:(document.getElementById('vw-bron')||{}).value||'manueel',taal:(document.getElementById('vw-taal')||{}).value||'',geslacht:(document.getElementById('vw-geslacht')||{}).value||'x',wijken:vwSelectedWijken,straten:vwSelectedStraten};
   if(vwEditId){
     const i=list.findIndex(x=>x.id===vwEditId);
     if(i>-1) list[i]={...list[i],...obj};
@@ -3581,9 +3599,9 @@ function saveVrijw(){
 
 // ── Vrijwilligers importeren via Excel ──
 function downloadVrijwSjabloon(){
-  const aoa=[['Voornaam','Naam','Roepnaam','GSM','E-mail','Taal','Notitie'],
-             ['Marie','Janssens','Mie','+32 499 00 00 00','marie@example.com','NL',''],
-             ['Pierre','Dubois','','+32 488 11 22 33','pierre@example.com','FR','']];
+  const aoa=[['Voornaam','Naam','Roepnaam','GSM','E-mail','Taal','Geslacht','Notitie'],
+             ['Marie','Janssens','Mie','+32 499 00 00 00','marie@example.com','NL','V',''],
+             ['Pierre','Dubois','','+32 488 11 22 33','pierre@example.com','FR','M','']];
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Vrijwilligers');
@@ -3634,6 +3652,7 @@ function bevestigVrijwImport(){
     const iGsm  =vind('gsm','tel','phone','mobiel','téléphone','nummer');
     const iMail =vind('mail','email','e-mail','courriel');
     const iTaal =vind('taal','langue','language','lang');
+    const iGesl =vind('geslacht','genre','gender','sexe');
     const iNot  =vind('notitie','note','opmerking','remarque');
 
     const list=getVrijw();
@@ -3650,7 +3669,7 @@ function bevestigVrijwImport(){
       bestaand.add(sleutel);
       list.push({id:uid(),voornaam:voor||'?',naam:naam||'',roepnaam:cel(iRoep),
         gsm:cel(iGsm),email:cel(iMail),notitie:cel(iNot),taal:normaliseerTaal(cel(iTaal)),
-        bron:bron,wijken:[],straten:[],created:Date.now()});
+        geslacht:normaliseerGeslacht(cel(iGesl)),bron:bron,wijken:[],straten:[],created:Date.now()});
       toegevoegd++;
     }
     saveVrijwData(list);
@@ -3778,6 +3797,7 @@ function saveVrijwKaart(id){
     gsm:(veld('gsm')?.value||'').trim(),
     email:(veld('email')?.value||'').trim(),
     taal:(veld('taal')?.value||''),
+    geslacht:(veld('geslacht')?.value||'x'),
     bron:(veld('bron')?.value||'manueel'),
     foto:(veld('foto-data')?.value||list[i].foto||'')
   };
@@ -3867,6 +3887,11 @@ function renderVrijwTabel(){
           <option value="nl" ${v.taal==='nl'?'selected':''}>Nederlands</option>
           <option value="fr" ${v.taal==='fr'?'selected':''}>Français</option>
         </select></label>
+        <label>Geslacht<select id="vw-card-geslacht-${id}">
+          <option value="x" ${(!v.geslacht||v.geslacht==='x')?'selected':''}>Onbekend</option>
+          <option value="m" ${v.geslacht==='m'?'selected':''}>Man</option>
+          <option value="v" ${v.geslacht==='v'?'selected':''}>Vrouw</option>
+        </select></label>
         <label>Oorsprong<select id="vw-card-bron-${id}">
           <option value="manueel" ${(v.bron||'manueel')==='manueel'?'selected':''}>Manueel</option>
           <option value="excel_algemeen" ${(v.bron||'manueel')==='excel_algemeen'?'selected':''}>Excel Algemeen</option>
@@ -3875,6 +3900,7 @@ function renderVrijwTabel(){
       </div>
       <div class="vrijw-card-meta">
         ${v.taal?`<span class="badge ${v.taal==='fr'?'badge-blue':'badge-green'}">${vwTaalLabel(v.taal)}</span>`:'<span class="badge badge-gray">Taal onbekend</span>'}
+        <span class="badge badge-gray">${vwGeslachtLabel(v.geslacht)}</span>
         <span class="badge badge-amber">${vwBronLabel(v.bron)}</span>
         ${wijken?`<span class="badge badge-blue">${wijken} wijk(en)</span>`:''}
         ${straten?`<span class="badge badge-green">${straten} straat/straten</span>`:''}
@@ -4079,26 +4105,91 @@ function toonCampagneBedanklijst(campagneId){
     return;
   }
   const dagen=getDagen().filter(d=>(d.campagneId||null)===campagneId);
-  const standaard=`Dag {naam}, bedankt om mee te helpen met ${camp?.naam||'de campagne'}!`;
+  const standaardNl=`Dag {roepnaam}, bedankt om mee te helpen met {campagne}!`;
+  const standaardFr=`{aanhef} {roepnaam}, merci d'avoir aidé à la campagne {campagne} !`;
   body.innerHTML=`<p style="font-size:13px;color:#555;margin-bottom:10px;">${ids.length} vrijwilliger(s) hielpen mee aan <strong>${htmlEsc(camp?.naam||'deze campagne')}</strong>.</p>
-    <textarea id="bedank-bericht-template" rows="3" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;margin-bottom:10px;">${htmlEsc(standaard)}</textarea>
-    <div style="font-size:11px;color:#777;margin-bottom:10px;">Gebruik <strong>{naam}</strong> in het bericht. WhatsApp opent per vrijwilliger apart.</div>
-    <div style="display:grid;gap:8px;">${ids.map(id=>{
-      const v=vrijwilligers.find(x=>x.id===id);
-      const naam=vrijwilligerNaam(v);
-      const dagenNamen=dagen.filter(d=>(d.vrijwilligerIds||[]).includes(id)).map(d=>d.datum+(d.naam?' - '+d.naam:'')).join(', ');
-      const tel=String(v?.gsm||'').replace(/[^0-9]/g,'');
-      return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid #e6edf5;border-radius:8px;padding:9px 10px;">
-        <div><strong>${htmlEsc(naam)}</strong><br><span style="font-size:11px;color:#777;">${htmlEsc(dagenNamen||'Bedeeldag onbekend')}</span></div>
-        ${tel?`<button class="btn-sm btn-success" onclick="openBedankWhatsapp('${tel}','${htmlEsc(naam).replace(/'/g,"\\'")}')">WhatsApp</button>`:'<span style="font-size:11px;color:#999;">Geen GSM</span>'}
-      </div>`;
-    }).join('')}</div>`;
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <label style="font-size:12px;font-weight:700;color:#344054;">Template Nederlands
+        <textarea id="bedank-template-nl" rows="3" oninput="renderBedankPreviews('${campagneId}')" style="width:100%;margin-top:5px;padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;">${htmlEsc(standaardNl)}</textarea>
+      </label>
+      <label style="font-size:12px;font-weight:700;color:#344054;">Template Français
+        <textarea id="bedank-template-fr" rows="3" oninput="renderBedankPreviews('${campagneId}')" style="width:100%;margin-top:5px;padding:8px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;">${htmlEsc(standaardFr)}</textarea>
+      </label>
+    </div>
+    <div style="font-size:11px;color:#777;margin-bottom:10px;">Variabelen: <strong>{roepnaam}</strong>, <strong>{naam}</strong>, <strong>{voornaam}</strong>, <strong>{campagne}</strong>, <strong>{dagen}</strong>, <strong>{aanhef}</strong>. Frans gebruikt geslacht voor <strong>Cher</strong> / <strong>Chère</strong> / <strong>Bonjour</strong>.</div>
+    <div id="bedank-preview-list" style="display:grid;gap:8px;">${bedankPreviewRows(campagneId)}</div>`;
   openModal('modal-bedanklijst');
 }
 
-function openBedankWhatsapp(tel, naam){
-  const tpl=document.getElementById('bedank-bericht-template')?.value||'Dag {naam}, bedankt!';
-  const msg=tpl.replaceAll('{naam}', naam);
+function bedankAanhef(v){
+  if((v?.taal||'')==='fr'){
+    if(v?.geslacht==='m') return 'Cher';
+    if(v?.geslacht==='v') return 'Chère';
+    return 'Bonjour';
+  }
+  return 'Dag';
+}
+
+function bedankHelperContext(v, camp, dagen){
+  const roep=(v?.roepnaam||v?.voornaam||v?.naam||'').trim()||'vrijwilliger';
+  const volleNaam=vrijwilligerNaam(v);
+  const dagenNamen=dagen.filter(d=>(d.vrijwilligerIds||[]).includes(v.id)).map(d=>d.datum+(d.naam?' - '+d.naam:'')).join(', ');
+  return {
+    roepnaam: roep,
+    naam: volleNaam,
+    voornaam: v?.voornaam||roep,
+    campagne: camp?.naam||'de campagne',
+    dagen: dagenNamen||'',
+    aanhef: bedankAanhef(v)
+  };
+}
+
+function bedankVulTemplate(tpl, ctx){
+  return String(tpl||'').replace(/\{(roepnaam|naam|voornaam|campagne|dagen|aanhef)\}/g, (_,k)=>ctx[k]||'');
+}
+
+function bedankBerichtVoor(v, campagneId){
+  const camp=getCampagnes().find(c=>c.id===campagneId);
+  const dagen=getDagen().filter(d=>(d.campagneId||null)===campagneId);
+  const tplNl=document.getElementById('bedank-template-nl')?.value||'Dag {roepnaam}, bedankt om mee te helpen met {campagne}!';
+  const tplFr=document.getElementById('bedank-template-fr')?.value||"{aanhef} {roepnaam}, merci d'avoir aidé à la campagne {campagne} !";
+  const tpl=(v?.taal==='fr')?tplFr:tplNl;
+  return bedankVulTemplate(tpl, bedankHelperContext(v,camp,dagen));
+}
+
+function bedankPreviewRows(campagneId){
+  const ids=getCampagneHelperIds(campagneId);
+  const vrijwilligers=getVrijw();
+  const camp=getCampagnes().find(c=>c.id===campagneId);
+  const dagen=getDagen().filter(d=>(d.campagneId||null)===campagneId);
+  return ids.map(id=>{
+    const v=vrijwilligers.find(x=>x.id===id);
+    if(!v) return '';
+    const ctx=bedankHelperContext(v,camp,dagen);
+    const msg=bedankBerichtVoor(v,campagneId);
+    const tel=String(v.gsm||'').replace(/[^0-9]/g,'');
+    const taal=v.taal==='fr'?'FR':'NL';
+    return `<div style="border:1px solid #e6edf5;border-radius:8px;padding:9px 10px;background:#fff;">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;">
+        <div><strong>${htmlEsc(vrijwilligerNaam(v))}</strong> <span class="badge ${v.taal==='fr'?'badge-blue':'badge-green'}">${taal}</span> <span class="badge badge-gray">${htmlEsc(vwGeslachtLabel(v.geslacht))}</span><br><span style="font-size:11px;color:#777;">${htmlEsc(ctx.dagen||'Bedeeldag onbekend')}</span></div>
+        ${tel?`<button class="btn-sm btn-success" onclick="openBedankWhatsappVoorVrijw('${htmlEsc(v.id)}','${campagneId}')">WhatsApp</button>`:'<span style="font-size:11px;color:#999;">Geen GSM</span>'}
+      </div>
+      <div id="bedank-preview-${htmlEsc(v.id)}" style="font-size:12px;color:#344054;background:#f8fafc;border:1px solid #edf0f3;border-radius:6px;padding:8px;white-space:pre-wrap;">${htmlEsc(msg)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBedankPreviews(campagneId){
+  const el=document.getElementById('bedank-preview-list');
+  if(el) el.innerHTML=bedankPreviewRows(campagneId);
+}
+
+function openBedankWhatsappVoorVrijw(vrijwId, campagneId){
+  const v=getVrijw().find(x=>x.id===vrijwId);
+  if(!v){ showToast('Vrijwilliger niet gevonden.',true); return; }
+  const tel=String(v.gsm||'').replace(/[^0-9]/g,'');
+  if(!tel){ showToast('Geen GSM voor deze vrijwilliger.',true); return; }
+  const msg=bedankBerichtVoor(v,campagneId);
   window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(msg),'_blank');
 }
 
